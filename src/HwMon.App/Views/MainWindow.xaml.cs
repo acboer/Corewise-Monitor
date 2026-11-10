@@ -241,7 +241,12 @@ public partial class MainWindow : Window
 
     private static T? FindParent<T>(DependencyObject d) where T : DependencyObject
     {
-        while (d is not null and not T) d = System.Windows.Media.VisualTreeHelper.GetParent(d) ?? LogicalTreeHelper.GetParent(d);
+        // Clique num trecho de texto (Run, Hyperlink) chega como elemento de conteúdo, que não é Visual:
+        // VisualTreeHelper recusa esses, então sobe pela árvore lógica até o TextBlock.
+        while (d is not null and not T)
+            d = d is System.Windows.Media.Visual or System.Windows.Media.Media3D.Visual3D
+                ? System.Windows.Media.VisualTreeHelper.GetParent(d) ?? LogicalTreeHelper.GetParent(d)
+                : LogicalTreeHelper.GetParent(d);
         return d as T;
     }
 }
