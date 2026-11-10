@@ -1,0 +1,57 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Corewise · tema escuro · gerado de design/tokens.json (não editar à mão) -->
+
+    <!-- Janela -->
+    <SolidColorBrush x:Key="App.Background" Color="#0F1217"/>
+    <SolidColorBrush x:Key="App.Sidebar" Color="#141821"/>
+    <SolidColorBrush x:Key="App.SidebarSelected" Color="#1F2530"/>
+    <SolidColorBrush x:Key="App.Divider" Color="#1F242D"/>
+
+    <!-- Cartões -->
+    <SolidColorBrush x:Key="Card.Background" Color="#181C24"/>
+    <SolidColorBrush x:Key="Card.BackgroundHover" Color="#1D222B"/>
+    <SolidColorBrush x:Key="Card.Border" Color="#262C36"/>
+    <SolidColorBrush x:Key="Card.Inset" Color="#13161D"/>
+
+    <!-- Texto -->
+    <SolidColorBrush x:Key="Text.Primary" Color="#E8ECF2"/>
+    <SolidColorBrush x:Key="Text.Secondary" Color="#9AA4B2"/>
+    <SolidColorBrush x:Key="Text.Tertiary" Color="#7D8796"/>
+
+    <!-- Destaque -->
+    <SolidColorBrush x:Key="Accent" Color="#4FD8EB"/>
+    <SolidColorBrush x:Key="Accent.Foreground" Color="#06232A"/>
+    <SolidColorBrush x:Key="Accent.Soft" Color="#12313A"/>
+    <SolidColorBrush x:Key="Accent.SoftText" Color="#A9EEF7"/>
+
+    <!-- Etiquetas -->
+    <SolidColorBrush x:Key="Badge.Background" Color="#212833"/>
+    <SolidColorBrush x:Key="Badge.Foreground" Color="#B8C1CE"/>
+
+    <!-- Estados -->
+    <SolidColorBrush x:Key="Status.Ok" Color="#3CCB7F"/>
+    <SolidColorBrush x:Key="Status.Caution" Color="#F5B13D"/>
+    <SolidColorBrush x:Key="Status.CautionSoft" Color="#3A2D12"/>
+    <SolidColorBrush x:Key="Status.CautionText" Color="#F7CD7E"/>
+    <SolidColorBrush x:Key="Status.Critical" Color="#F2555A"/>
+    <SolidColorBrush x:Key="Status.CriticalSoft" Color="#3A1A1D"/>
+    <SolidColorBrush x:Key="Status.CriticalText" Color="#F7A3A6"/>
+
+    <!-- Barras -->
+    <SolidColorBrush x:Key="Bar.Track" Color="#262C36"/>
+
+    <!-- Controles -->
+    <SolidColorBrush x:Key="Button.Background" Color="#1A1F28"/>
+    <SolidColorBrush x:Key="Button.Border" Color="#2E3540"/>
+    <SolidColorBrush x:Key="Input.Background" Color="#12151B"/>
+    <SolidColorBrush x:Key="Input.Border" Color="#2E3540"/>
+    <SolidColorBrush x:Key="Dialog.Background" Color="#1B2029"/>
+    <SolidColorBrush x:Key="Overlay.Scrim" Color="#9E05070A"/>
+
+    <!-- Widget -->
+    <SolidColorBrush x:Key="Widget.Background" Color="#DB161A22"/>
+    <SolidColorBrush x:Key="Widget.Border" Color="#1FFFFFFF"/>
+    <SolidColorBrush x:Key="Widget.BarTrack" Color="#1AFFFFFF"/>
+    <SolidColorBrush x:Key="Widget.Text.Secondary" Color="#A5AFBD"/>
+</ResourceDictionary>

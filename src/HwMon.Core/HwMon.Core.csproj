@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>HwMon.Core</RootNamespace>
+    <!-- Buffers alinhados (NativeMemory) do teste de disco sem cache. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Traduções (ver L.cs): "texto em português" → tradução. -->
+    <EmbeddedResource Include="Idiomas\*.json" LogicalName="HwMon.Core.Idiomas.%(Filename).json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="10.0.14" />
+    <PackageReference Include="System.Management" Version="10.0.14" />
+    <PackageReference Include="Vortice.D3DCompiler" Version="3.8.3" />
+    <PackageReference Include="Vortice.Direct3D11" Version="3.8.3" />
+  </ItemGroup>
+
+</Project>

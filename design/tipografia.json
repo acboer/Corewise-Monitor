@@ -1,0 +1,42 @@
+{
+  "family": {
+    "primary": "Inter",
+    "fallback": ["Segoe UI Variable Text", "Segoe UI"],
+    "mono": ["Cascadia Mono", "Consolas"],
+    "license": "SIL Open Font License 1.1 — pode ser embutida no aplicativo",
+    "numerals": "tabular (font-feature tnum / Typography.NumeralAlignment=Tabular) em todos os valores medidos"
+  },
+  "unit": "px (= DIP no WPF)",
+  "scale": {
+    "Page.Title":          { "size": 26, "weight": 600, "lineHeight": 32, "letterSpacing": -0.01, "use": "Nome da máquina, \"Visão geral\"" },
+    "Page.Subtitle":       { "size": 13, "weight": 400, "lineHeight": 18, "color": "Text.Secondary", "use": "Placa · Windows; contagem de máquinas" },
+    "Dialog.Title":        { "size": 18, "weight": 600, "lineHeight": 24, "use": "Título de diálogo" },
+    "MachineCard.Title":   { "size": 16, "weight": 600, "lineHeight": 22, "use": "Nome no cartão da visão geral" },
+    "Card.Title":          { "size": 13, "weight": 600, "lineHeight": 18, "use": "Título do cartão de componente" },
+    "Card.Subtitle":       { "size": 11.5, "weight": 400, "lineHeight": 16, "color": "Text.Secondary", "use": "\"16 núcleos · 32 threads\", \"HDD · SATA · 4001 GB\"" },
+    "Value.Main":          { "size": 28, "weight": 600, "lineHeight": 31, "letterSpacing": -0.02, "use": "Valor principal do cartão e dos blocos" },
+    "Value.Unit":          { "size": 15, "weight": 400, "lineHeight": 20, "color": "Text.Secondary", "use": "%, °C, Mbit/s ao lado do valor" },
+    "Value.Caption":       { "size": 12.5, "weight": 400, "lineHeight": 18, "color": "Text.Secondary", "use": "\"de uso\", \"tempo ativo\", \"recebendo\"" },
+    "Label":               { "size": 12.5, "weight": 400, "lineHeight": 18, "use": "Linhas rótulo/valor (rótulo em Text.Secondary)" },
+    "Label.Small":         { "size": 12, "weight": 500, "lineHeight": 16, "use": "Título de bloco, etiqueta de papel, volumes" },
+    "Caption":             { "size": 11, "weight": 400, "lineHeight": 14, "color": "Text.Tertiary", "use": "\"atualizado agora\", legenda de gráfico" },
+    "Section.Label":       { "size": 11, "weight": 600, "lineHeight": 14, "letterSpacing": 0.06, "textCase": "upper", "color": "Text.Tertiary", "use": "\"MÁQUINAS\" na barra lateral" },
+    "Nav.Item":            { "size": 13.5, "weight": 500, "lineHeight": 18, "use": "Itens da barra lateral" },
+    "Button":              { "size": 13, "weight": 500, "lineHeight": 18, "use": "Botões (principal: 600)" },
+    "Widget.Name":         { "size": 13, "weight": 600, "lineHeight": 18, "use": "Nome da máquina no widget" },
+    "Widget.Label":        { "size": 12, "weight": 400, "lineHeight": 16, "color": "Widget.Text.Secondary", "use": "Rótulo da linha do widget" },
+    "Widget.Value":        { "size": 13, "weight": 600, "lineHeight": 18, "use": "Valor da linha do widget" },
+    "Widget.Caption":      { "size": 11, "weight": 400, "lineHeight": 14, "color": "Text.Tertiary", "use": "\"atualizado agora\" no widget" },
+    "Fingerprint":         { "size": 20, "weight": 600, "lineHeight": 26, "letterSpacing": 0.06, "family": "mono", "color": "Accent", "use": "Impressão digital do certificado" }
+  },
+  "layout": {
+    "sidebarWidth": 236,
+    "contentPadding": [22, 28, 28, 28],
+    "grid": { "minColumn": 232, "gap": 12, "rowMin": 222, "flow": "dense", "wideSpan": 2 },
+    "card": { "radius": 14, "padding": 14, "border": 1 },
+    "machineCard": { "minWidth": 440, "radius": 16, "padding": 18 },
+    "widget": { "width": 270, "radius": 14 },
+    "bar": { "height": 4, "radius": 2 },
+    "sparkline": { "height": 32, "heightWide": 76, "stroke": 1.5, "fillOpacity": 0.12 }
+  }
+}

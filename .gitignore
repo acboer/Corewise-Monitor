@@ -1,0 +1,22 @@
+# Compilação
+bin/
+obj/
+publish/
+.vs/
+*.user
+
+# Ferramentas e dados locais (não são código do Corewise)
+inventario/
+LibreHardwareMonitor/
+*.lnk
+MainWindow.xaml
+
+# Leituras de hardware destas máquinas (têm números de série): ficam só neste PC
+HWMonitor_*.txt
+LHM_*.txt
+
+# Configurações locais do Claude Code
+.claude/settings.local.json
+
+# Imagens de referência de outros produtos (direitos dos donos): só neste PC
+Documentação/Identidade visual/

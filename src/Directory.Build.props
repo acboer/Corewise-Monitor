@@ -1,0 +1,6 @@
+<Project>
+  <!-- Pacotes publicados sem arquivos de depuração soltos ao lado do .exe. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+</Project>

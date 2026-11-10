@@ -1,0 +1,62 @@
+<Window x:Class="HwMon.App.Views.PairWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:HwMon.App.Controls"
+        Title="Adicionar máquina" Width="480" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Dialog.Background}" FontFamily="{StaticResource Font.Text}" Icon="/Assets/app.ico"
+        Foreground="{DynamicResource Text.Primary}" ShowInTaskbar="False">
+    <StackPanel Margin="24,20,24,20">
+        <TextBlock Text="Adicionar máquina" Style="{StaticResource Text.DialogTitle}"/>
+        <TextBlock TextWrapping="Wrap" Style="{StaticResource Text.PageSubtitle}" Margin="0,6,0,18"
+                   Text="Digite o nome do outro PC (com o Corewise instalado) e clique em Procurar. Depois é só pedir acesso e clicar em Permitir lá."/>
+
+        <TextBlock Text="Nome ou IP do PC" FontWeight="SemiBold" Margin="0,0,0,4"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="HostBox" Padding="6,4" FontSize="14"/>
+            <Button Grid.Column="1" Content="Procurar" Style="{StaticResource FlatButton}" Margin="8,0,0,0" Click="Probe_Click"/>
+        </Grid>
+
+        <Border x:Name="InfoPanel" Visibility="Collapsed" Margin="0,12,0,0" Padding="14,12" CornerRadius="10"
+                Background="{DynamicResource Card.Inset}" BorderBrush="{DynamicResource Card.Border}" BorderThickness="1">
+            <StackPanel>
+                <TextBlock x:Name="InfoTitle" FontWeight="SemiBold" FontSize="14"/>
+                <TextBlock x:Name="InfoDetail" Style="{StaticResource Text.Label}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" Margin="0,10,0,0" TextElement.Foreground="{DynamicResource Text.Secondary}">
+                    <controls:Icon Kind="status-secure" Width="14" Height="14" Margin="0,0,6,0"/>
+                    <TextBlock Text="Certificado" Style="{StaticResource Text.Label}"/>
+                </StackPanel>
+                <TextBlock x:Name="InfoFingerprintText" Style="{StaticResource Text.Fingerprint}" Margin="0,2,0,0">
+                    <Run x:Name="InfoFingerprint"/>
+                </TextBlock>
+                <TextBlock Style="{StaticResource Caption}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"
+                           Text="Confira se é o mesmo mostrado na janela do código de pareamento."/>
+            </StackPanel>
+        </Border>
+
+        <StackPanel x:Name="CodePanel" Visibility="Collapsed" Margin="0,16,0,0">
+            <TextBlock Text="Nome no painel" FontWeight="SemiBold" Margin="0,0,0,4"/>
+            <TextBox x:Name="NameBox" Padding="6,4" FontSize="14"/>
+            <TextBlock Style="{StaticResource Caption}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"
+                       Text="Pedir acesso: aparece uma janela no outro PC; alguém lá clica em Permitir. Se lá só tem o serviço (sem o painel aberto), use o código: no outro PC, Iniciar › Corewise › Código de pareamento."/>
+            <Expander x:Name="CodeExpander" Header="Tenho um código" Margin="0,8,0,0">
+                <StackPanel Margin="0,6,0,0">
+                    <TextBlock Text="Código de 6 dígitos" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <TextBox x:Name="CodeBox" Padding="6,4" FontSize="18" FontFamily="Consolas" MaxLength="7" Width="140" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Expander>
+        </StackPanel>
+
+        <TextBlock x:Name="Waiting" TextWrapping="Wrap" Margin="0,14,0,0" Foreground="{DynamicResource Accent}" Visibility="Collapsed"/>
+
+        <TextBlock x:Name="Message" TextWrapping="Wrap" Margin="0,14,0,0" Foreground="{DynamicResource Status.Critical}" Visibility="Collapsed"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Cancelar" Style="{StaticResource FlatButton}" Margin="0,0,8,0" IsCancel="True"/>
+            <Button x:Name="PairButton" Content="Pedir acesso" Style="{StaticResource AccentButton}" IsDefault="True" IsEnabled="False" Click="Pair_Click"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

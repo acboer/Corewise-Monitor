@@ -1,0 +1,39 @@
+﻿<Window x:Class="HwMon.App.Views.GameOverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:HwMon.App.Controls"
+        Title="Corewise · modo jogo" SizeToContent="WidthAndHeight"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
+        ShowInTaskbar="False" ShowActivated="False" Focusable="False" Topmost="True"
+        FontFamily="{StaticResource Font.Text}" Foreground="#F2F5F8">
+    <!-- Sempre escuro (fica sobre o jogo, não segue o tema) e não recebe cliques (WS_EX_TRANSPARENT no código). -->
+    <Grid Margin="10">
+        <Border Background="#0B0E12" CornerRadius="10" Opacity="{Binding BackgroundOpacity}"/>
+        <StackPanel Margin="12,8,12,10" MinWidth="230">
+            <TextBlock Text="{Binding Game}" FontSize="11" Foreground="#9AA4B2" TextTrimming="CharacterEllipsis" MaxWidth="260"/>
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                <TextBlock Text="{Binding Fps}" FontSize="30" FontWeight="Bold" Foreground="#4FD8EB" Typography.NumeralAlignment="Tabular"/>
+                <TextBlock Text="FPS" FontSize="12" Foreground="#9AA4B2" VerticalAlignment="Bottom" Margin="4,0,14,6"/>
+                <StackPanel VerticalAlignment="Bottom" Margin="0,0,0,4">
+                    <TextBlock FontSize="12" Typography.NumeralAlignment="Tabular">
+                        <Run Text="1% low " Foreground="#9AA4B2"/><Run Text="{Binding Low, Mode=OneWay}" FontWeight="SemiBold"
+                             Foreground="{Binding LowSeverity, Converter={StaticResource OverlaySeverity}, Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock FontSize="12" Typography.NumeralAlignment="Tabular">
+                        <Run Text="frame " Foreground="#9AA4B2"/><Run Text="{Binding Frametime, Mode=OneWay}" FontWeight="SemiBold"/>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+            <controls:Sparkline Height="28" Margin="0,4,0,4" Values="{Binding Frametimes}" Maximum="{Binding GraphMax}" Capacity="240" Stroke="#4FD8EB"
+                                Visibility="{Binding ShowGraph, Converter={StaticResource BoolToVisibility}}"/>
+            <TextBlock Text="{Binding Message}" FontSize="11" Foreground="#F7CD7E" TextWrapping="Wrap" MaxWidth="260"
+                       Visibility="{Binding Message, Converter={StaticResource NullToVisibility}}"/>
+            <TextBlock Text="{Binding Gpu}" FontSize="12" Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"
+                       Visibility="{Binding Gpu, Converter={StaticResource NullToVisibility}}"/>
+            <TextBlock Text="{Binding Vram}" FontSize="12" Foreground="#C8D0DA" Typography.NumeralAlignment="Tabular"
+                       Visibility="{Binding Vram, Converter={StaticResource NullToVisibility}}"/>
+            <TextBlock Text="{Binding Cpu}" FontSize="12" Typography.NumeralAlignment="Tabular"
+                       Visibility="{Binding Cpu, Converter={StaticResource NullToVisibility}}"/>
+        </StackPanel>
+    </Grid>
+</Window>

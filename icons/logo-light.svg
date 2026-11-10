@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="168" height="40" viewBox="0 0 168 40">
+<defs><linearGradient id="cwLogoL" x1="0.33" y1="0" x2="0.67" y2="1"><stop offset="0" stop-color="#353C48"/><stop offset="1" stop-color="#0B0D11"/></linearGradient></defs>
+<rect x="0" y="0" width="40" height="40" rx="9" fill="url(#cwLogoL)"/>
+<g transform="translate(2 2) scale(0.75)" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M35.49 14.36A15 15 0 1 0 35.49 33.64" stroke="#FFFFFF" stroke-opacity="0.9" stroke-width="4.2"/><circle cx="24" cy="24" r="7" fill="#4FD8EB"/><circle cx="40" cy="24" r="3.2" fill="#6FE7F5"/></g>
+<text x="50" y="28" font-family="'Space Grotesk', Inter, 'Segoe UI Variable Display', 'Segoe UI', sans-serif" font-size="25" font-weight="600" letter-spacing="-0.75" fill="#1D2127">corewise</text>
+</svg>
