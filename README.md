@@ -59,7 +59,7 @@ network. Details in [PRIVACY.md](PRIVACY.md).
 
 ## Code signing policy
 
-Releases are signed. Free code signing provided by SignPath.io, certificate by SignPath Foundation. Roles and process:
+Release builds are signed through SignPath (application in progress; current previews are unsigned). Free code signing provided by SignPath.io, certificate by SignPath Foundation. Roles and process:
 [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md).
 
 ## Building from source
