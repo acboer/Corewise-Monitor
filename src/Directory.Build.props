@@ -3,4 +3,14 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>none</DebugType>
   </PropertyGroup>
+
+  <!-- Metadados de todos os executáveis (a assinatura pelo SignPath confere nome do produto e versão). -->
+  <PropertyGroup>
+    <Company>Corewise</Company>
+    <Authors>Corewise contributors</Authors>
+    <Copyright>Copyright © 2026 Corewise contributors. MIT License.</Copyright>
+    <RepositoryUrl>https://github.com/acboer/Corewise-Monitor</RepositoryUrl>
+    <!-- Versão do produto igual em todo build ("0.13.0", sem o +commit): o SignPath confere. -->
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
 </Project>

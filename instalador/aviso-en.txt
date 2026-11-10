@@ -1,0 +1,11 @@
+﻿Corewise will make these changes to this PC:
+
+- Service only / Full: installs the "Corewise" Windows service (runs as Local System, starts with Windows). Reading motherboard, CPU and disk sensors and the frame events used by the FPS overlay requires administrator rights.
+- Service only / Full: adds a Windows Firewall rule allowing TCP port 47821 on private and domain networks (never public networks), so the Corewise dashboard on your other PCs can connect. Only dashboards you pair (by clicking Allow on this PC or with a one-time code) are answered.
+- Full / Dashboard only: the dashboard and widget start with Windows (you can turn this off in Settings).
+
+Corewise does not send anything to the internet. Data stays in C:\ProgramData\Corewise and %AppData%\Corewise.
+
+Uninstalling (Settings > Apps > Corewise) removes the service, the firewall rule and the startup entry.
+
+Privacy policy: https://github.com/acboer/Corewise-Monitor/blob/main/PRIVACY.md

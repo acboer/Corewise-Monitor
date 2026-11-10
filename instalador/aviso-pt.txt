@@ -1,0 +1,11 @@
+﻿O Corewise vai fazer estas mudanças neste PC:
+
+- Só o serviço / Completo: instala o serviço do Windows "Corewise" (roda como Sistema Local e inicia com o Windows). Ler os sensores da placa-mãe, da CPU e dos discos e os eventos de quadros usados pelo FPS no jogo exige permissão de administrador.
+- Só o serviço / Completo: cria uma regra no Firewall do Windows liberando a porta TCP 47821 em redes privadas e de domínio (nunca em redes públicas), para o painel do Corewise nos seus outros PCs se conectar. Só respondem os painéis que você parear (clicando em Permitir neste PC ou com um código de uso único).
+- Completo / Só o painel: o painel e o widget abrem com o Windows (dá para desligar em Configurações).
+
+O Corewise não envia nada para a internet. Os dados ficam em C:\ProgramData\Corewise e %AppData%\Corewise.
+
+Desinstalar (Configurações > Aplicativos > Corewise) remove o serviço, a regra do firewall e o início automático.
+
+Política de privacidade: https://github.com/acboer/Corewise-Monitor/blob/main/PRIVACY.md

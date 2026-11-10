@@ -13,6 +13,11 @@ AppName=Corewise
 AppVersion={#AppVersion}
 AppVerName=Corewise {#AppVersion}
 AppPublisher=Corewise
+AppPublisherURL=https://github.com/acboer/Corewise-Monitor
+AppSupportURL=https://github.com/acboer/Corewise-Monitor/issues
+AppUpdatesURL=https://github.com/acboer/Corewise-Monitor/releases
+AppCopyright=Copyright (c) 2026 Corewise contributors. MIT License.
+LicenseFile=..\LICENSE
 DefaultDirName={autopf}\Corewise
 DefaultGroupName=Corewise
 DisableProgramGroupPage=yes
@@ -34,11 +39,13 @@ CloseApplications=yes
 RestartApplications=no
 VersionInfoVersion={#AppVersion}
 VersionInfoProductName=Corewise
+VersionInfoProductTextVersion={#AppVersion}
+VersionInfoCopyright=Copyright (c) 2026 Corewise contributors. MIT License.
 ShowLanguageDialog=auto
 
 [Languages]
-Name: "ptbr"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
-Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "en"; MessagesFile: "compiler:Default.isl"; InfoBeforeFile: "aviso-en.txt"
+Name: "ptbr"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; InfoBeforeFile: "aviso-pt.txt"
 
 [CustomMessages]
 ptbr.TypeFull=Completo: painel, widget e serviço (este PC aparece no painel)

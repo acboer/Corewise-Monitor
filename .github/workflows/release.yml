@@ -1,0 +1,115 @@
+# Versão: ao enviar uma tag "v0.13.0", compila do código da tag, assina pelo SignPath (quando configurado) e cria
+# uma Release em rascunho com o instalador. Nada é assinado fora daqui (exigência do SignPath Foundation).
+#
+# Para assinar, cadastre no repositório (Settings > Secrets and variables > Actions):
+#   secret    SIGNPATH_API_TOKEN
+#   variáveis SIGNPATH_ORGANIZATION_ID, SIGNPATH_PROJECT_SLUG, SIGNPATH_POLICY_SLUG
+# Sem o secret, gera tudo sem assinatura (útil para testar o workflow antes da aprovação).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  SIGN: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Check version
+        id: version
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content src/HwMon.App/HwMon.App.csproj -Raw)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v$version") { throw "Tag $env:GITHUB_REF_NAME não bate com a versão $version do projeto." }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Publish executables
+        shell: pwsh
+        run: ./instalador/gerar.ps1 -SoPublicar
+
+      # 1) Assina Corewise.exe e Corewise.Service.exe antes de irem para dentro do instalador.
+      - name: Upload executables for signing
+        if: env.SIGN == 'true'
+        id: upload-exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: executaveis
+          path: |
+            publish/corewise/Corewise.exe
+            publish/corewise/Corewise.Service.exe
+
+      - name: Sign executables
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: executaveis
+          github-artifact-id: ${{ steps.upload-exe.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: publish/corewise
+          parameters: |
+            version: ${{ toJSON(steps.version.outputs.version) }}
+
+      - name: Build installer
+        shell: pwsh
+        run: ./instalador/gerar.ps1 -SoInstalador
+
+      # 2) Assina o instalador.
+      - name: Upload installer for signing
+        if: env.SIGN == 'true'
+        id: upload-setup
+        uses: actions/upload-artifact@v4
+        with:
+          name: instalador
+          path: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
+
+      - name: Sign installer
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG }}
+          artifact-configuration-slug: instalador
+          github-artifact-id: ${{ steps.upload-setup.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: publish
+          parameters: |
+            version: ${{ toJSON(steps.version.outputs.version) }}
+
+      - name: Keep installer as build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CorewiseSetup-${{ steps.version.outputs.version }}
+          path: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
+
+      - name: Draft GitHub release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: Corewise ${{ steps.version.outputs.version }}
+          files: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe

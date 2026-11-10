@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath artifact configuration "executaveis": Corewise.exe and Corewise.Service.exe (zip uploaded by GitHub Actions). -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" default-value="0.0.0" />
+  </parameters>
+  <zip-file>
+    <pe-file path="Corewise.exe" product-name="Corewise" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="Corewise.Service.exe" product-name="Corewise" product-version="${version}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>
