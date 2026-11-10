@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Version>0.13.0</Version>
+    <Version>0.13.1</Version>
     <AssemblyName>Corewise.Service</AssemblyName>
     <Product>Corewise</Product>
     <ApplicationIcon>..\..\icons\app.ico</ApplicationIcon>

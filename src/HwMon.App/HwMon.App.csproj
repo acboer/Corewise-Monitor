@@ -11,7 +11,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AssemblyName>Corewise</AssemblyName>
     <RootNamespace>HwMon.App</RootNamespace>
-    <Version>0.13.0</Version>
+    <Version>0.13.1</Version>
     <Product>Corewise</Product>
     <ApplicationIcon>..\..\icons\app.ico</ApplicationIcon>
     <!-- Tema Fluent do WPF (Application.ThemeMode) ainda é marcado como experimental. -->
