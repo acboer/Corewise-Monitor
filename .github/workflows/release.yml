@@ -23,9 +23,9 @@ jobs:
   release:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
 
@@ -48,7 +48,7 @@ jobs:
       - name: Upload executables for signing
         if: env.SIGN == 'true'
         id: upload-exe
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: executaveis
           path: |
@@ -79,7 +79,7 @@ jobs:
       - name: Upload installer for signing
         if: env.SIGN == 'true'
         id: upload-setup
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: instalador
           path: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
@@ -101,15 +101,21 @@ jobs:
             version: ${{ toJSON(steps.version.outputs.version) }}
 
       - name: Keep installer as build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: CorewiseSetup-${{ steps.version.outputs.version }}
           path: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
 
-      - name: Draft GitHub release
+      # Release já criada à mão para esta tag: só anexa (ou troca) o instalador. Senão, cria um rascunho.
+      - name: Attach to GitHub release
         if: github.ref_type == 'tag'
-        uses: softprops/action-gh-release@v2
-        with:
-          draft: true
-          name: Corewise ${{ steps.version.outputs.version }}
-          files: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = $env:GITHUB_REF_NAME
+          $file = "publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe"
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) { gh release upload $tag $file --clobber }
+          else { gh release create $tag $file --draft --title "Corewise ${{ steps.version.outputs.version }}" --notes "Edit these notes before publishing." }
+          if ($LASTEXITCODE -ne 0) { throw "Falha ao anexar o instalador à release $tag." }
