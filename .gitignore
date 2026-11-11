@@ -20,3 +20,7 @@ publish/
 
 # Imagens de referência de outros produtos (direitos dos donos): só neste PC
 Documentação/Identidade visual/
+
+# Material de divulgação grande ou bruto: o vídeo vai para o GitHub (editor do README) e para o Reddit, não para o git
+Documentação/Vídeo promo/
+docs/screenshots/Captures/

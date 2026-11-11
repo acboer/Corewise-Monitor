@@ -6,14 +6,15 @@ dashboard and an always-on-top desktop widget.
 
 Free and open source (MIT). Windows 10/11, 64-bit. English and Portuguese.
 
-![Dashboard](docs/screenshots/dashboard.png)
+![Overview of three PCs: workstation, NAS and HTPC](docs/screenshots/overview.jpg)
 
 ## Features
 
 - **Live dashboard**: CPU, GPU, RAM, disks, volumes, network, fans, power and peripherals, with 24-hour sparklines
   and alerts (yellow/red) for heat, full disks and failing drives.
 - **Several machines**: install the service on each PC (gaming rig, NAS, render nodes) and watch them all from one
-  dashboard. Pair a PC by clicking **Allow** on it, or with a one-time code.
+  dashboard. Pair a PC by clicking **Allow** on it, or with a one-time code. Turn an offline PC on from the
+  dashboard (Wake-on-LAN).
 - **Desktop widget**: one widget that cycles through your PCs, or one widget per PC. Compact or visual style,
   adjustable transparency, global shortcut (Ctrl+Shift+F9 by default).
 - **Game mode**: FPS, 1 % low and frame-time overlay on top of full-screen games, read from Windows' own events.
@@ -24,13 +25,18 @@ Free and open source (MIT). Windows 10/11, 64-bit. English and Portuguese.
   a stability test with error checking and throttling detection.
 - **System summary**: OS, motherboard, BIOS, CPU, RAM modules, GPUs, disks, displays and battery in one page.
 
+![In-game overlay: FPS, 1 % low, frame time, GPU and CPU](docs/screenshots/overlay.jpg)
+
 | | |
 |---|---|
-| ![Benchmarks](docs/screenshots/benchmarks.png) | ![System](docs/screenshots/system.png) |
+| ![Machine dashboard](docs/screenshots/dashboard.jpg) | ![Desktop widget and its metric picker](docs/screenshots/widget.jpg) |
+| ![Game history with FPS and 1 % low](docs/screenshots/game-history.jpg) | ![Disk benchmark](docs/screenshots/benchmarks.jpg) |
 
 ## Download and install
 
 1. Download `CorewiseSetup-<version>.exe` from [Releases](https://github.com/acboer/Corewise-Monitor/releases).
+   The installer is not code-signed yet, so Windows SmartScreen warns: click **More info › Run anyway**
+   (see [Code signing](#code-signing)).
 2. Choose **Full** (dashboard + service, for your own PC), **Service only** (for a PC you watch from another one:
    NAS, server, render node) or **Dashboard only**.
 3. To add another PC: **Add machine**, type its name, **Find**, **Request access**, then click **Allow** on that PC.
@@ -57,10 +63,22 @@ This program will not transfer any information to other networked systems unless
 user. No telemetry, no accounts, no internet access: the service only answers the dashboards you pair on your own
 network. Details in [PRIVACY.md](PRIVACY.md).
 
-## Code signing policy
+## Code signing
 
-Release builds are signed through SignPath (application in progress; current previews are unsigned). Free code signing provided by SignPath.io, certificate by SignPath Foundation. Roles and process:
-[CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md).
+Corewise is not code-signed yet. It's a solo project, and free signing for open-source projects needs some public
+track record first; I'll apply again once the project has more history. Until then:
+
+- Windows SmartScreen warns on install (**More info › Run anyway**).
+- If **Smart App Control** is on, Windows blocks unsigned programs and there is no "run anyway". It can only be
+  turned off in Windows Security, so it's fine to wait for a signed release instead.
+
+What you can check instead:
+
+- Every release is built by [GitHub Actions](.github/workflows/release.yml) from the tagged source in this
+  repository. Nothing built on a developer machine is published.
+- The release notes link a VirusTotal scan of the installer.
+
+Details and how releases are built: [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md).
 
 ## Building from source
 

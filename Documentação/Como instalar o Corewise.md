@@ -6,7 +6,7 @@ Windows; dá para trocar em Configurações).
 
 ## Instalar
 
-1. Baixe `CorewiseSetup-0.13.2.exe` e dê dois cliques.
+1. Baixe `CorewiseSetup-0.13.3.exe` e dê dois cliques.
 2. O Windows deve avisar **"O Windows protegeu o computador"** (o instalador ainda não tem assinatura digital).
    Clique em **Mais informações** → **Executar assim mesmo**.
    Se em vez disso aparecer **"O controle inteligente de aplicativos bloqueou um aplicativo"**, não há botão para

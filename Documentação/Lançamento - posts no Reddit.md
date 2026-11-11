@@ -28,7 +28,7 @@ Hi! I've been building **Corewise** for a few weeks as a personal project, and i
 
 **Stack:** C# / .NET 10, WPF, ASP.NET Core minimal API (HTTPS with pinned certificates), SQLite, LibreHardwareMonitor for sensors, Inno Setup for the installer. Built and released through GitHub Actions. MIT license.
 
-**Honest caveat:** the installer isn't code-signed yet (I've applied to SignPath Foundation's free signing for open-source projects), so Windows SmartScreen warns on install. The source and the build workflow are public if you want to check what it does.
+**Honest caveat:** the installer isn't code-signed yet (it's a solo project; free signing for open-source projects needs some public track record first), so Windows SmartScreen warns on install. The source and the build workflow are public if you want to check what it does.
 
 Repo and download: https://github.com/acboer/Corewise-Monitor
 
@@ -53,10 +53,10 @@ I'd love feedback on the UX, on what's missing compared to the tools you use tod
 **What I need back:** anything confusing, wrong sensor values (please include your CPU/GPU/motherboard), crashes (the log is at `%AppData%\Corewise\erro.log`), and features you'd expect.
 
 **Good to know:**
-- Preview, not code-signed yet (SignPath application in progress): SmartScreen will warn ("More info → Run anyway"). If Windows **Smart App Control** is on, it will block it; please skip this round in that case.
+- Preview, not code-signed yet: SmartScreen will warn ("More info → Run anyway"). If Windows **Smart App Control** is on, it will block it; please skip this round in that case.
 - The installer adds a Windows service (needed to read sensors as administrator) and a firewall rule for its port on private networks only. No telemetry, nothing leaves your network.
 
-Download: https://github.com/acboer/Corewise-Monitor/releases
+Download: https://github.com/acboer/Corewise-Monitor
 Issues/feedback: https://github.com/acboer/Corewise-Monitor/issues (or reply here)
 
 ---
@@ -75,7 +75,7 @@ My homelab is small (a Windows box as NAS + my workstation), and I got tired of 
 - Silent install for several machines: `CorewiseSetup.exe /VERYSILENT /TYPE=servico`.
 - LAN only: HTTPS with per-machine certificates pinned at pairing, firewall rule for private networks, no cloud, no telemetry.
 
-Windows only for now (it relies on Windows sensor and event APIs). It's an early preview and not code-signed yet (applied to SignPath Foundation), so SmartScreen will complain. Source and build pipeline are on GitHub (MIT):
+Windows only for now (it relies on Windows sensor and event APIs). It's an early preview and not code-signed yet, so SmartScreen will complain. Source and build pipeline are on GitHub (MIT):
 
 https://github.com/acboer/Corewise-Monitor
 
@@ -92,7 +92,7 @@ Reading motherboard/CPU sensors (through LibreHardwareMonitor and the PawnIO dri
 Those are great on one PC; Corewise is about several PCs at once (NAS, render nodes, second PC) from one dashboard and widget, plus history and benchmarks. It uses LibreHardwareMonitor's library for part of the sensor reading.
 
 **"Is it safe? It's unsigned."**
-Fair concern. The source is public, the installer is built by GitHub Actions from that source (the workflow is in the repo), and here's the VirusTotal scan: <link>. Signing through SignPath Foundation is in progress.
+Fair concern. The source is public, the installer is built by GitHub Actions from that source (the workflow is in the repo), and here's the VirusTotal scan: <link>. Code signing will come once the project has enough track record for the free open-source signing programs.
 
 **"Linux/macOS?"**
 Not now: it depends on Windows APIs for sensors and FPS. A web view of the dashboard (for phones and other OSes) is on the idea list.

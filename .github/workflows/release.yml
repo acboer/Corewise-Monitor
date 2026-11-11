@@ -1,4 +1,4 @@
-# Versão: ao enviar uma tag "v0.13.0", compila do código da tag, assina pelo SignPath (quando configurado) e cria
+# Versão: ao enviar uma tag "v0.13.0", compila do código da tag, assina pelo SignPath (se um dia for configurado) e cria
 # uma Release em rascunho com o instalador. Nada é assinado fora daqui (exigência do SignPath Foundation).
 #
 # Para assinar, cadastre no repositório (Settings > Secrets and variables > Actions):

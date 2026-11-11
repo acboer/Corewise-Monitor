@@ -1,19 +1,24 @@
-# Code signing policy
+# Code signing
 
-Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by
-[SignPath Foundation](https://signpath.org/).
+## Current status
 
-## What is signed
+Corewise releases are **not code-signed yet**. Free signing for open-source projects (such as the
+[SignPath Foundation](https://signpath.org/) program) requires a project with some public track record, which
+Corewise does not have yet. I plan to apply again once it does. Until then, Windows SmartScreen shows a warning on
+install, and Windows Smart App Control (when enabled) blocks the installer.
 
-Every release of Corewise published on [GitHub Releases](https://github.com/acboer/Corewise-Monitor/releases):
+## How releases are built
+
+Every release published on [GitHub Releases](https://github.com/acboer/Corewise-Monitor/releases) is built from the
+tagged source in this repository by [GitHub Actions](.github/workflows/release.yml):
 
 - `Corewise.exe` (dashboard and widget)
 - `Corewise.Service.exe` (sensor service)
 - `CorewiseSetup-<version>.exe` (installer)
 
-Releases are built from the tagged source in this repository by
-[GitHub Actions](.github/workflows/release.yml) and submitted to SignPath from that build. Nothing built on a
-developer machine is signed. Third-party libraries are bundled unmodified and keep their own signatures (or none).
+Nothing built on a developer machine is published. Third-party libraries are bundled unmodified and keep their own
+signatures (or none). The workflow already contains the signing steps; they stay inactive until a signing service
+is set up.
 
 ## Team roles
 
@@ -22,8 +27,8 @@ developer machine is signed. Third-party libraries are bundled unmodified and ke
 | Committers and reviewers | [acboer](https://github.com/acboer) |
 | Approvers | [acboer](https://github.com/acboer) |
 
-Changes from people outside this list are reviewed by a committer before they are merged. Every signing request is
-approved manually. All members use multi-factor authentication on GitHub and SignPath.
+Changes from people outside this list are reviewed by a committer before they are merged. All members use
+multi-factor authentication on GitHub.
 
 ## Privacy
 
