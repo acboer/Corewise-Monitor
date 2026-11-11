@@ -226,6 +226,37 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Accent}"/>
         <Setter Property="Foreground" Value="{DynamicResource Accent.Foreground}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
+        <!-- Modelo próprio: o do FlatButton troca o fundo por Card.BackgroundHover ao passar o mouse, e o texto escuro
+             do botão de destaque sumia sobre esse fundo escuro. Aqui o fundo continua na cor de destaque e só clareia. -->
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1" CornerRadius="8"/>
+                        <Border x:Name="Hover" Background="White" CornerRadius="8" Opacity="0"/>
+                        <StackPanel Orientation="Horizontal" Margin="13,8" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}">
+                            <controls:Icon x:Name="Ic" Kind="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter TargetName="Ic" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Hover" Property="Opacity" Value="0.15"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Hover" Property="Opacity" Value="0.25"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- Botão sem moldura da barra lateral (Adicionar máquina, widget). -->

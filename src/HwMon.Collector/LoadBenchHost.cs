@@ -207,7 +207,7 @@ public sealed class LoadBenchHost(EngineHost host, DataStore store, ILogger<Load
     {
         try
         {
-            var all = File.Exists(HistoryPath) ? JsonSerializer.Deserialize<List<BenchResult>>(File.ReadAllText(HistoryPath), Json) ?? new() : new();
+            var all = SafeFile.ReadJson<List<BenchResult>>(HistoryPath, Json) ?? new();
             return kind is null ? all : all.Where(r => r.Kind == kind).ToList();
         }
         catch (JsonException)
@@ -222,7 +222,7 @@ public sealed class LoadBenchHost(EngineHost host, DataStore store, ILogger<Load
         {
             var all = History(null);
             if (all.RemoveAll(r => r.Id == id) == 0) return false;
-            File.WriteAllText(HistoryPath, JsonSerializer.Serialize(all, Json));
+            SafeFile.WriteAllText(HistoryPath, JsonSerializer.Serialize(all, Json));
             return true;
         }
     }
@@ -235,7 +235,7 @@ public sealed class LoadBenchHost(EngineHost host, DataStore store, ILogger<Load
             all.Insert(0, result);
             // Até 50 por tipo.
             var kept = all.GroupBy(r => r.Kind).SelectMany(g => g.Take(50)).OrderByDescending(r => r.Time).ToList();
-            File.WriteAllText(HistoryPath, JsonSerializer.Serialize(kept, Json));
+            SafeFile.WriteAllText(HistoryPath, JsonSerializer.Serialize(kept, Json));
         }
     }
 }

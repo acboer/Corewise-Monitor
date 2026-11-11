@@ -44,18 +44,25 @@ public sealed class NetDailyTotals
                 e.TxToday = 0;
             }
 
-            // Mesma inicialização do Windows e contador não voltou: soma a diferença. Senão, só define a nova base.
-            if (e.LastRx is { } lr && e.LastTx is { } lt && Math.Abs((e.Boot - boot).TotalMinutes) < 2 && rxBytes >= lr && txBytes >= lt)
-            {
-                e.RxToday += rxBytes - lr;
-                e.TxToday += txBytes - lt;
-            }
+            // Soma a diferença só quando ela é deste dia: mesma inicialização do Windows e a leitura anterior é de
+            // poucos minutos atrás. Com o serviço parado por horas (ou desde ontem), não dá para saber em que dia o
+            // tráfego aconteceu: fica fora e a leitura atual vira a nova base. Recebido e enviado são conferidos
+            // separadamente (um contador que voltou não descarta o outro).
+            var now = DateTime.UtcNow;
+            var continuous = Math.Abs((e.Boot - boot).TotalMinutes) < 2 && e.LastTime is { } last && now - last is { } gap
+                             && gap >= TimeSpan.Zero && gap <= MaxGap;
+            if (continuous && e.LastRx is { } lr && rxBytes >= lr) e.RxToday += rxBytes - lr;
+            if (continuous && e.LastTx is { } lt && txBytes >= lt) e.TxToday += txBytes - lt;
             e.LastRx = rxBytes;
             e.LastTx = txBytes;
+            e.LastTime = now;
             e.Boot = boot;
             return (e.RxToday, e.TxToday);
         }
     }
+
+    /// <summary>Maior intervalo entre duas leituras que ainda conta (atualização do serviço, pausa curta).</summary>
+    private static readonly TimeSpan MaxGap = TimeSpan.FromMinutes(5);
 
     public void Save()
     {
@@ -83,5 +90,7 @@ public sealed class NetDailyTotals
         public double? LastRx { get; set; }
         public double? LastTx { get; set; }
         public DateTime Boot { get; set; }
+        /// <summary>Hora (UTC) da última leitura. Nulo em arquivos antigos: a primeira leitura só define a base.</summary>
+        public DateTime? LastTime { get; set; }
     }
 }

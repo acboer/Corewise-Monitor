@@ -12,7 +12,12 @@ public sealed class Peripheral
     public string? Type { get; init; }
     /// <summary>Lightspeed, Logi Bolt, Unifying.</summary>
     public required string Connection { get; init; }
-    public required HidPP Channel { get; init; }
+    /// <summary>Canal HID++ (Logitech); nulo nos aparelhos lidos pelo Windows (Bluetooth, XInput).</summary>
+    public HidPP? Channel { get; init; }
+    /// <summary>Leitura da bateria pelo Windows (Bluetooth, XInput), no lugar do HID++.</summary>
+    public Func<BatteryStatus?>? Read { get; init; }
+    /// <summary>Só níveis aproximados (controle Xbox): sem estimativa de tempo.</summary>
+    public bool Coarse { get; init; }
     public byte Index { get; init; }
     public ushort BatteryFeature { get; init; }
     public byte BatteryIndex { get; init; }
@@ -94,12 +99,15 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
 
         // Aparelho em repouso agora, mas já visto neste dongle (nesta execução ou numa anterior, pelo arquivo):
         // entra mesmo assim, com as funções já conhecidas. A bateria fica "antiga" até ele acordar.
-        foreach (var old in _devices.Where(o => found.All(f => f.Key != o.Key) && _channels.ContainsValue(o.Channel)))
+        // O mesmo aparelho pode ter ficado gravado com outra chave (ex.: numa busca em que ele não informou o número de
+        // série): um aparelho por posição no receptor, senão o mouse aparecia duas vezes.
+        bool SameSlot(HidPP channel, byte index) => found.Any(f => f.Channel is { } c && c.Info.ProductId == channel.Info.ProductId && f.Index == index);
+        foreach (var old in _devices.Where(o => o.Channel is { } c && found.All(f => f.Key != o.Key) && _channels.ContainsValue(c) && !SameSlot(c, o.Index)))
             found.Add(old);
         foreach (var known in LoadKnown().Where(k => found.All(f => f.Key != k.Key)))
         {
             var channel = _channels.Values.FirstOrDefault(c => c.Info.ProductId == known.ReceiverPid && seenPaths.Contains(c.Info.Path));
-            if (channel is null) continue; // dongle não está conectado
+            if (channel is null || SameSlot(channel, known.Index)) continue; // dongle não está conectado, ou a posição já tem aparelho
             found.Add(new Peripheral
             {
                 Key = known.Key, Name = known.Name, Type = known.Type, Connection = known.Connection, Channel = channel,
@@ -108,13 +116,18 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
         }
 
         // Dongles que sumiram (desconectados) ou coleções sem nada útil: fecha.
-        var used = found.Select(f => f.Channel).ToHashSet();
+        var used = found.Where(f => f.Channel is not null).Select(f => f.Channel!).ToHashSet();
         foreach (var path in _channels.Keys.ToList())
         {
             if (seenPaths.Contains(path) && used.Contains(_channels[path])) continue;
             _channels[path].Dispose();
             _channels.Remove(path);
         }
+
+        // Bluetooth e controles Xbox: o Windows já sabe quais estão conectados.
+        foreach (var d in SystemBatteries.Find(problems))
+            found.Add(new Peripheral { Key = d.Key, Name = d.Name, Type = d.Type, Connection = d.Connection, Read = d.Read, Coarse = d.Coarse });
+        _signature = Signature();
 
         var changed = !found.Select(f => f.Key).Order().SequenceEqual(_devices.Select(d => d.Key).Order());
         _devices = found;
@@ -149,8 +162,14 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
         {
             var all = LoadKnown().ToDictionary(k => k.Key);
             foreach (var d in _devices)
-                all[d.Key] = new KnownDevice(d.Key, d.Name, d.Type, d.Connection, d.Channel.Info.ProductId, d.Index, d.BatteryFeature, d.BatteryIndex);
-            File.WriteAllText(statePath, System.Text.Json.JsonSerializer.Serialize(all.Values.ToList(), Json));
+            {
+                if (d.Channel is not { } c) continue;
+                // Outra chave na mesma posição do mesmo receptor é este aparelho gravado com outro nome: sai.
+                foreach (var stale in all.Values.Where(k => k.Key != d.Key && k.ReceiverPid == c.Info.ProductId && k.Index == d.Index).ToList())
+                    all.Remove(stale.Key);
+                all[d.Key] = new KnownDevice(d.Key, d.Name, d.Type, d.Connection, c.Info.ProductId, d.Index, d.BatteryFeature, d.BatteryIndex);
+            }
+            HwMon.Core.SafeFile.WriteAllText(statePath, System.Text.Json.JsonSerializer.Serialize(all.Values.ToList(), Json));
         }
         catch (IOException ex)
         {
@@ -163,7 +182,7 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
     {
         if (statePath is null) return;
         var all = LoadKnown().Where(k => k.Key != key).ToList();
-        File.WriteAllText(statePath, System.Text.Json.JsonSerializer.Serialize(all, Json));
+        HwMon.Core.SafeFile.WriteAllText(statePath, System.Text.Json.JsonSerializer.Serialize(all, Json));
     }
 
     private static Peripheral? Probe(HidPP channel, byte index)
@@ -201,6 +220,26 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
         };
     }
 
+    private string? _signature;
+
+    /// <summary>Lista de dispositivos do Windows (HID, Bluetooth com bateria, controles): muda quando algo entra ou sai.</summary>
+    private static string Signature()
+    {
+        try
+        {
+            var paths = HidDevice.Paths();
+            paths.Sort(StringComparer.OrdinalIgnoreCase);
+            return string.Join("|", paths) + "#" + SystemBatteries.Signature();
+        }
+        catch (Exception)
+        {
+            return "";
+        }
+    }
+
+    /// <summary>Conferência barata (alguns ms): algo foi conectado ou desconectado desde a última busca?</summary>
+    public bool DevicesChanged() => _signature is not null && Signature() != _signature;
+
     private readonly Dictionary<string, DateTimeOffset> _lastRead = new();
     private readonly Dictionary<string, BatteryTrend> _trends = new();
 
@@ -218,7 +257,7 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
             BatteryStatus? b = null;
             try
             {
-                b = d.Channel.Battery(d.Index, d.BatteryFeature, d.BatteryIndex);
+                b = d.Read is { } read ? read() : d.Channel!.Battery(d.Index, d.BatteryFeature, d.BatteryIndex);
             }
             catch (Exception ex)
             {
@@ -227,7 +266,14 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
             if (b?.Percent is { } pct)
             {
                 var note = b.State + (b.VoltageMv is { } mv ? $" · {mv / 1000.0:0.00} V (estimado pela tensão)" : "");
-                yield return Reading.Ok("periph", d.Key, "battery", pct, "%", "hidpp", note);
+                yield return Reading.Ok("periph", d.Key, "battery", pct, "%", "hidpp", d.Coarse ? note + " · nível aproximado" : note);
+                if (d.Coarse)
+                {
+                    // O controle informa só vazio/baixo/médio/cheio: não dá para estimar tempo.
+                    yield return Reading.Unavailable("periph", d.Key, "runtime", "min", "hidpp", "o controle informa só o nível aproximado");
+                    yield return Reading.Unavailable("periph", d.Key, "charge_eta", "min", "hidpp", "o controle informa só o nível aproximado");
+                    continue;
+                }
 
                 // Tempo estimado: para carregar (carregando) ou de bateria restante (na bateria).
                 var charging = b.State == "carregando";
@@ -248,11 +294,15 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
                     yield return Reading.Unavailable("periph", d.Key, "charge_eta", "min", "hidpp", b.State);
                 }
             }
+            else if (b is { Percent: null } && b.State is not "desligado")
+            {
+                yield return Reading.Unavailable("periph", d.Key, "battery", "%", "hidpp", b.State); // ex.: controle com fio
+            }
             else
             {
-                var error = d.Channel.LastError;
+                var error = d.Channel?.LastError;
                 // Headset com dongle próprio: o dongle responde com erro quando o headset está desligado.
-                var off = b?.State == "desligado" || (d.Index == 0xFF && error is not null);
+                var off = b?.State == "desligado" || (d.Channel is not null && d.Index == 0xFF && error is not null);
                 yield return Reading.Unavailable("periph", d.Key, "battery", "%", "hidpp",
                     off ? "desligado" : $"sem resposta (desligado, em repouso ou fora de alcance){(error is { } e ? $" · erro HID++ 0x{e:X2}" : "")}");
                 if (off)

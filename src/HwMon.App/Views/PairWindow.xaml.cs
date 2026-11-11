@@ -58,8 +58,23 @@ public partial class PairWindow : Window
 
     private readonly CancellationTokenSource _closing = new();
 
+    /// <summary>Pedido de acesso ainda esperando resposta (para desistir dele se a janela fechar).</summary>
+    private string? _pendingAsk;
+
     protected override void OnClosed(EventArgs e)
     {
+        // Fechou esperando o "Permitir": desiste do pedido, senão um clique atrasado lá geraria um acesso que ninguém
+        // guarda. (Serviço antigo sem essa opção: o pedido só vence em 2 minutos.)
+        if (_pendingAsk is { } ask && _host is { } host && _fingerprint is { } fingerprint)
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var c = new CollectorClient(host, Protocol.DefaultPort, fingerprint, token: null);
+                    await c.CancelPairAskAsync(ask);
+                }
+                catch (Exception) { /* fora do ar ou serviço antigo */ }
+            });
         _closing.Cancel();
         base.OnClosed(e);
     }
@@ -92,6 +107,7 @@ public partial class PairWindow : Window
             }
             Waiting.Text = L.T("Aguardando… clique em Permitir na janela que apareceu em {0}. O pedido vale 2 minutos.", _info.HostName);
             Waiting.Visibility = Visibility.Visible;
+            _pendingAsk = ask.Id;
             var until = DateTime.UtcNow.AddMinutes(2.2);
             while (DateTime.UtcNow < until)
             {
@@ -100,6 +116,7 @@ public partial class PairWindow : Window
                 switch (status.State)
                 {
                     case "approved" when status.Token is { } token:
+                        _pendingAsk = null;
                         Finish(client, ask.MachineId, token);
                         return;
                     case "denied":

@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AssemblyName>hwmon</AssemblyName>
-    <Version>0.13.1</Version>
+    <Version>0.13.2</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">

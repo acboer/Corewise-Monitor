@@ -31,9 +31,7 @@ public static class NetBenchmark
             rtts.Add((await client.PingAsync(cancel)).TotalMilliseconds);
             progress(L.T("Medindo a latência"), 0.05 * (i + 1) / 20, null);
         }
-        rtts.Sort();
-        var median = rtts[rtts.Count / 2];
-        var jitter = rtts.Zip(rtts.Skip(1), (a, b) => Math.Abs(b - a)).DefaultIfEmpty(0).Average();
+        var (median, jitter) = Latency(rtts);
 
         var down = await MeasureAsync(L.T("Recebendo dados"), 0.05, (onBytes, ct) => client.DownloadAsync(Seconds, onBytes, ct), progress, cancel);
         var up = await MeasureAsync(L.T("Enviando dados"), 0.525, (onBytes, ct) => client.UploadAsync(Seconds, onBytes, ct), progress, cancel);
@@ -68,7 +66,14 @@ public static class NetBenchmark
         var all = Task.WhenAll(tasks);
         while (!all.IsCompleted)
         {
-            await Task.WhenAny(all, Task.Delay(250, cancel));
+            // Sem o token no Delay: cancelado, ele terminaria na hora e o laço giraria sem parar até as transferências
+            // fecharem. Cancelou: espera elas fecharem (elas recebem o mesmo token) e sai.
+            await Task.WhenAny(all, Task.Delay(250));
+            if (cancel.IsCancellationRequested)
+            {
+                try { await all; } catch (Exception) { /* cancelado: o erro que importa é o cancelamento */ }
+                cancel.ThrowIfCancellationRequested();
+            }
             var t = clock.Elapsed.TotalSeconds;
             samples.Add((t, Interlocked.Read(ref total)));
             var recent = samples.LastOrDefault(s => s.T <= t - 1);
@@ -76,12 +81,28 @@ public static class NetBenchmark
             progress(phase, start + 0.475 * Math.Min(1, t / Seconds), now);
         }
         await all;
+        // Amostra final (as transferências podem terminar antes da primeira volta do laço).
+        samples.Add((clock.Elapsed.TotalSeconds, Interlocked.Read(ref total)));
         // Velocidade média depois do aquecimento.
         var first = samples.FirstOrDefault(s => s.T >= Warmup);
         var last = samples[^1];
         return first.T > 0 && last.T > first.T
             ? (last.Bytes - first.Bytes) * 8 / 1e6 / (last.T - first.T)
             : last.Bytes * 8 / 1e6 / Math.Max(0.001, last.T);
+    }
+
+    /// <summary>
+    /// Latência (mediana) e jitter (média da variação entre medidas seguidas, na ordem em que foram feitas: a
+    /// variação do tempo de resposta HTTPS do serviço). A ordenação é feita numa cópia, só para a mediana.
+    /// </summary>
+    public static (double Median, double Jitter) Latency(IReadOnlyList<double> rtts)
+    {
+        if (rtts.Count == 0) return (0, 0);
+        var jitter = rtts.Count < 2 ? 0 : rtts.Zip(rtts.Skip(1), (a, b) => Math.Abs(b - a)).Average();
+        var sorted = rtts.Order().ToList();
+        var mid = sorted.Count / 2;
+        var median = sorted.Count % 2 == 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+        return (median, jitter);
     }
 
     /// <summary>Adaptador local na mesma sub-rede do coletor e a velocidade do link (para "X de Y possíveis").</summary>

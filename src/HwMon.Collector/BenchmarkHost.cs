@@ -92,7 +92,7 @@ public sealed class BenchmarkHost(DataStore store, ILogger<BenchmarkHost> log)
     {
         try
         {
-            return File.Exists(HistoryPath) ? JsonSerializer.Deserialize<List<DiskBenchResult>>(File.ReadAllText(HistoryPath)) ?? new() : new();
+            return SafeFile.ReadJson<List<DiskBenchResult>>(HistoryPath) ?? new();
         }
         catch (JsonException)
         {
@@ -106,7 +106,7 @@ public sealed class BenchmarkHost(DataStore store, ILogger<BenchmarkHost> log)
         {
             var all = History();
             if (all.RemoveAll(r => r.Id == id) == 0) return false;
-            File.WriteAllText(HistoryPath, JsonSerializer.Serialize(all, Json));
+            SafeFile.WriteAllText(HistoryPath, JsonSerializer.Serialize(all, Json));
             return true;
         }
     }
@@ -117,7 +117,7 @@ public sealed class BenchmarkHost(DataStore store, ILogger<BenchmarkHost> log)
         {
             var all = History();
             all.Insert(0, result);
-            File.WriteAllText(HistoryPath, JsonSerializer.Serialize(all.Take(200).ToList(), Json));
+            SafeFile.WriteAllText(HistoryPath, JsonSerializer.Serialize(all.Take(200).ToList(), Json));
         }
     }
 }

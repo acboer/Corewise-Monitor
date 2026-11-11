@@ -43,12 +43,13 @@ public sealed class EngineHost(EngineOptions options, CollectorConfig config, Da
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var engine = new TelemetryEngine(options, message => log.LogWarning("{Message}", message));
+        Task? recorder = null;
         try
         {
             await Task.Run(engine.Initialize, stoppingToken);
             _engine = engine;
             _ = SummaryAsync(false, stoppingToken); // aquece o cache em segundo plano
-            if (config.HistoryEnabled) _ = Task.Run(() => RecordAsync(engine, stoppingToken), stoppingToken);
+            if (config.HistoryEnabled) recorder = Task.Run(() => RecordAsync(engine, stoppingToken), stoppingToken);
             await engine.RunAsync(stoppingToken);
         }
         catch (OperationCanceledException)
@@ -63,6 +64,10 @@ public sealed class EngineHost(EngineOptions options, CollectorConfig config, Da
         finally
         {
             _engine = null;
+            // A gravação do histórico termina antes de o motor ser descartado (ela lê os snapshots dele).
+            if (recorder is not null)
+                try { await recorder.WaitAsync(TimeSpan.FromSeconds(10)); }
+                catch (Exception) { /* cancelada ou já registrou o erro */ }
             engine.Dispose();
         }
     }

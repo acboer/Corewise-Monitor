@@ -37,6 +37,7 @@ public sealed class MachineConnection(PairedMachine machine, MachineStore? store
         var status = ConnectionStatus.Connecting;
         var since = DateTimeOffset.Now;
         var failures = 0;
+        var unauthorized = 0;
 
         void Set(ConnectionStatus s, string? message, TimeSpan? retry = null)
         {
@@ -65,6 +66,7 @@ public sealed class MachineConnection(PairedMachine machine, MachineStore? store
                         descriptor = await client.MachineAsync(cancel);
                     last = snapshot;
                     failures = 0;
+                    unauthorized = 0;
                     Set(ConnectionStatus.Connected, null);
                 }
             }
@@ -79,8 +81,12 @@ public sealed class MachineConnection(PairedMachine machine, MachineStore? store
             }
             catch (CollectorException ex) when (ex.Unauthorized)
             {
-                Set(ConnectionStatus.Failed, L.T("Acesso revogado ou pareamento perdido. Pareie de novo."));
-                return;
+                // Token recusado. Pode ser de vez (revogado, serviço reinstalado do zero) ou passageiro (serviço sendo
+                // atualizado): antes a conexão desistia até reabrir o painel. Agora continua tentando, devagar.
+                var wait = TimeSpan.FromSeconds(Math.Min(30 * ++unauthorized, 300));
+                Set(ConnectionStatus.Failed, L.T("Acesso revogado ou pareamento perdido. Pareie de novo."), wait);
+                try { await Task.Delay(wait, cancel); }
+                catch (OperationCanceledException) { return; }
             }
             catch (Exception ex)
             {

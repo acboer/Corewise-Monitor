@@ -36,38 +36,48 @@ public static class StressTest
         var errors = 0;
         string? firstError = null;
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(cancel);
-        var workers = Enumerable.Range(0, threads).Select(i => new Thread(() =>
-        {
-            using var w = new CpuWorkloads();
-            var n = i;
-            while (!stop.IsCancellationRequested)
-            {
-                var k = Keys[n++ % Keys.Length];
-                if (w.Run(k) != expected[k])
-                {
-                    if (Interlocked.Increment(ref errors) == 1) firstError = $"{DateTime.Now:HH:mm:ss}: resultado errado em \"{k}\" na thread {i}";
-                }
-                Interlocked.Increment(ref ops);
-            }
-        }) { IsBackground = true }).ToList();
-        foreach (var t in workers) t.Start();
+        var fault = new WorkerFault();
+        var workers = new List<Thread>();
         Thread? gpu = null;
-        if (gpuLoad is not null)
-        {
-            gpu = new Thread(() =>
-            {
-                try { gpuLoad(stop.Token); }
-                catch (Exception ex) when (ex is not OperationCanceledException) { result.Notes.Add("A carga da placa de vídeo falhou: " + ex.Message); }
-            }) { IsBackground = true };
-            gpu.Start();
-        }
-
         var clock = Stopwatch.StartNew();
         var total = TimeSpan.FromMinutes(minutes);
         int hotCpu = 0, hotGpu = 0;
         try
         {
-            while (clock.Elapsed < total && !cancel.IsCancellationRequested)
+            for (var i = 0; i < threads; i++)
+            {
+                var index = i;
+                var t = new Thread(fault.Wrap(() =>
+                {
+                    using var w = new CpuWorkloads();
+                    var n = index;
+                    while (!stop.IsCancellationRequested)
+                    {
+                        var k = Keys[n++ % Keys.Length];
+                        if (w.Run(k) != expected[k])
+                        {
+                            if (Interlocked.Increment(ref errors) == 1) firstError = $"{DateTime.Now:HH:mm:ss}: resultado errado em \"{k}\" na thread {index}";
+                        }
+                        Interlocked.Increment(ref ops);
+                    }
+                }, stop.Cancel)) { IsBackground = true };
+                t.Start();
+                workers.Add(t);
+            }
+            if (gpuLoad is not null)
+            {
+                gpu = new Thread(() =>
+                {
+                    try { gpuLoad(stop.Token); }
+                    catch (Exception ex) when (ex is not OperationCanceledException)
+                    {
+                        lock (result.Notes) result.Notes.Add("A carga da placa de vídeo falhou: " + ex.Message);
+                    }
+                }) { IsBackground = true };
+                gpu.Start();
+            }
+
+            while (clock.Elapsed < total && !cancel.IsCancellationRequested && fault.Error is null)
             {
                 Thread.Sleep(1000);
                 var left = total - clock.Elapsed;
@@ -84,8 +94,12 @@ public static class StressTest
         {
             stop.Cancel();
             foreach (var t in workers) t.Join();
-            gpu?.Join(TimeSpan.FromSeconds(10));
+            // A espera da placa tem limite próprio (20 s por lote); o Dispose dela ainda espera a carga parar.
+            if (gpu is not null && !gpu.Join(TimeSpan.FromSeconds(30)))
+                lock (result.Notes) result.Notes.Add("A placa de vídeo não terminou a última carga a tempo.");
         }
+        // Falha de programa numa thread (não erro de cálculo): o teste para e diz o motivo, sem derrubar o serviço.
+        if (fault.Error is { } failure && result.StoppedReason is null) result.StoppedReason = "Falha no teste: " + failure.Message;
         if (cancel.IsCancellationRequested && result.StoppedReason is null) result.StoppedReason = "Cancelado";
 
         result.Seconds = Math.Round(clock.Elapsed.TotalSeconds);

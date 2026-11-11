@@ -36,8 +36,25 @@ public static class L
         Culture = CultureInfo.GetCultureInfo(English ? "en-US" : "pt-BR");
     }
 
-    /// <summary>Idioma do Windows (do usuário; no serviço, o do sistema).</summary>
-    public static string Detect() => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "pt" ? "pt" : "en";
+    /// <summary>
+    /// Idioma do Windows (do usuário; no serviço, o do sistema). Lido do Windows e não de CurrentUICulture, que o
+    /// painel troca ao aplicar o idioma escolhido: depois de passar para inglês, "seguir o Windows" achava "en".
+    /// </summary>
+    public static string Detect()
+    {
+        try
+        {
+            var lang = (CultureInfo.GetCultureInfo(GetUserDefaultUILanguage()).TwoLetterISOLanguageName);
+            return lang == "pt" ? "pt" : "en";
+        }
+        catch (Exception)
+        {
+            return CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == "pt" ? "pt" : "en";
+        }
+    }
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll")]
+    private static extern ushort GetUserDefaultUILanguage();
 
     /// <summary>
     /// Traduz para o idioma atual. Aceita texto pronto vindo do serviço (que fala português com os painéis):
@@ -46,6 +63,14 @@ public static class L
     public static string T(string text)
     {
         if (string.IsNullOrEmpty(text)) return text;
+        // " — mostrando os últimos dados…" (trecho de uma frase na tela): traduz sem os espaços das pontas.
+        if (char.IsWhiteSpace(text[0]) || char.IsWhiteSpace(text[^1]))
+        {
+            var core = text.Trim();
+            if (core.Length == 0) return text;
+            var start = text.IndexOf(core, StringComparison.Ordinal);
+            return text[..start] + T(core) + text[(start + core.Length)..];
+        }
         if (!English) return Pt.Value.TryGetValue(text, out var pt) ? pt : text;
         if (En.Value.TryGetValue(text, out var en)) return en;
         if (Cache.TryGetValue(text, out var cached)) return cached;

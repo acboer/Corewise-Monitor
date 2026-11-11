@@ -70,32 +70,49 @@ public static class CpuBenchmark
     public static double Measure(string key, int threads, double seconds, CancellationToken cancel)
     {
         long ops = 0;
-        var start = new ManualResetEventSlim(false);
+        using var start = new ManualResetEventSlim(false);
         var measuring = 0;
         var stopAt = 0L;
-        var workers = Enumerable.Range(0, threads).Select(_ => new Thread(() =>
+        var fault = new WorkerFault();
+        var workers = new List<Thread>();
+        double elapsed = 0;
+        long counted = 0;
+        try
         {
-            using var w = new CpuWorkloads();
-            start.Wait();
-            while (!cancel.IsCancellationRequested)
+            for (var i = 0; i < threads; i++)
             {
-                w.Run(key);
-                if (Volatile.Read(ref measuring) == 1) Interlocked.Increment(ref ops);
-                if (Stopwatch.GetTimestamp() >= Volatile.Read(ref stopAt) && stopAt != 0) break;
+                var t = new Thread(fault.Wrap(() =>
+                {
+                    using var w = new CpuWorkloads();
+                    start.Wait();
+                    while (!cancel.IsCancellationRequested)
+                    {
+                        w.Run(key);
+                        if (Volatile.Read(ref measuring) == 1) Interlocked.Increment(ref ops);
+                        if (Stopwatch.GetTimestamp() >= Volatile.Read(ref stopAt) && stopAt != 0) break;
+                    }
+                }, () => Volatile.Write(ref stopAt, 1))) { IsBackground = true, Priority = ThreadPriority.Normal };
+                t.Start();
+                workers.Add(t);
             }
-        }) { IsBackground = true, Priority = ThreadPriority.Normal }).ToList();
-        foreach (var t in workers) t.Start();
-        Volatile.Write(ref stopAt, Stopwatch.GetTimestamp() + (long)((Warmup + seconds) * Stopwatch.Frequency) + Stopwatch.Frequency * 60);
-        start.Set();
-        Thread.Sleep(TimeSpan.FromSeconds(Warmup));
-        var t0 = Stopwatch.GetTimestamp();
-        Volatile.Write(ref measuring, 1);
-        Thread.Sleep(TimeSpan.FromSeconds(seconds));
-        Volatile.Write(ref measuring, 0);
-        var elapsed = Stopwatch.GetElapsedTime(t0).TotalSeconds;
-        var counted = Interlocked.Read(ref ops);
-        Volatile.Write(ref stopAt, 1); // todos param na próxima operação
-        foreach (var t in workers) t.Join();
+            Volatile.Write(ref stopAt, Stopwatch.GetTimestamp() + (long)((Warmup + seconds) * Stopwatch.Frequency) + Stopwatch.Frequency * 60);
+            start.Set();
+            Thread.Sleep(TimeSpan.FromSeconds(Warmup));
+            var t0 = Stopwatch.GetTimestamp();
+            Volatile.Write(ref measuring, 1);
+            Thread.Sleep(TimeSpan.FromSeconds(seconds));
+            Volatile.Write(ref measuring, 0);
+            elapsed = Stopwatch.GetElapsedTime(t0).TotalSeconds;
+            counted = Interlocked.Read(ref ops);
+        }
+        finally
+        {
+            // Também se a criação de uma thread falhar no meio: as que já começaram param e são esperadas.
+            Volatile.Write(ref stopAt, 1); // todos param na próxima operação
+            start.Set();
+            foreach (var t in workers) t.Join();
+        }
+        fault.ThrowIfFaulted();
         cancel.ThrowIfCancellationRequested();
         return counted / elapsed;
     }

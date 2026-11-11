@@ -1,4 +1,4 @@
-# Compila a solução a cada push e pull request (sem gerar instalador nem assinar).
+# Compila a solução e roda os testes a cada push e pull request (sem gerar instalador nem assinar).
 name: CI
 
 on:
@@ -19,3 +19,5 @@ jobs:
           dotnet-version: 10.0.x
       - name: Build
         run: dotnet build HardwareMonitor.sln -c Release -nologo
+      - name: Testes
+        run: dotnet test tests/HwMon.Tests/HwMon.Tests.csproj -c Release -nologo --no-build

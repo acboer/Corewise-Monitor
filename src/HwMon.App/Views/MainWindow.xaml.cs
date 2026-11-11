@@ -101,6 +101,28 @@ public partial class MainWindow : Window
         if (sender is FrameworkElement { DataContext: CardViewModel card } && _vm.Selected is MachineViewModel m) m.OpenHistory(card);
     }
 
+    /// <summary>Visão geral: clique no cartão abre a máquina; num bloco (CPU, Discos…), já abre o histórico dele.</summary>
+    private void OverviewCard_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (_vm.IsCustomizingOverview || sender is not FrameworkElement { DataContext: MachineViewModel m }) return;
+        e.Handled = true;
+        string? target = null;
+        for (var d = e.OriginalSource as DependencyObject; d is not null && d != sender; d = Parent(d))
+            if (d is FrameworkElement { DataContext: TileViewModel tile })
+            {
+                target = tile.Target;
+                break;
+            }
+        _vm.Selected = m;
+        m.CloseHistory();
+        if (target is not null && m.Cards.FirstOrDefault(c => c.ComponentId == target) is { } card) m.OpenHistory(card);
+
+        static DependencyObject? Parent(DependencyObject d)
+            => d is System.Windows.Media.Visual or System.Windows.Media.Media3D.Visual3D
+                ? System.Windows.Media.VisualTreeHelper.GetParent(d) ?? LogicalTreeHelper.GetParent(d)
+                : LogicalTreeHelper.GetParent(d);
+    }
+
     private void AddMachine_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new PairWindow(_vm.Store) { Owner = this };

@@ -60,13 +60,13 @@ public sealed class DataStore
         if (!File.Exists(ConfigPath))
         {
             var fresh = new CollectorConfig();
-            File.WriteAllText(ConfigPath, JsonSerializer.Serialize(fresh, Json));
+            SafeFile.WriteAllText(ConfigPath, JsonSerializer.Serialize(fresh, Json));
             return fresh;
         }
         return JsonSerializer.Deserialize<CollectorConfig>(File.ReadAllText(ConfigPath), Json) ?? new CollectorConfig();
     }
 
-    public void SaveConfig(CollectorConfig config) => File.WriteAllText(ConfigPath, JsonSerializer.Serialize(config, Json));
+    public void SaveConfig(CollectorConfig config) => SafeFile.WriteAllText(ConfigPath, JsonSerializer.Serialize(config, Json));
 
     public static bool IsAdministrator()
     {

@@ -25,7 +25,9 @@ public static class DiskBenchmark
     ];
 
     private const FileOptions NoBuffering = (FileOptions)0x20000000;
-    public const string FileName = "HardwareWatch-benchmark.tmp";
+    /// <summary>Prefixo do arquivo de teste; cada execução usa um nome novo (nunca o de um arquivo que já existe).</summary>
+    public const string FilePrefix = "Corewise-benchmark-";
+    private const FileOptions DeleteOnClose = (FileOptions)0x04000000;
 
     /// <summary>
     /// <paramref name="live"/>: linhas já medidas (cópia) e a medição em andamento (teste, escrita?, MB/s até agora),
@@ -54,11 +56,15 @@ public static class DiskBenchmark
             Seconds = seconds,
         };
 
-        var path = Path.Combine(root, FileName);
+        // Nome novo a cada teste e CreateNew: nunca abre (nem trunca, nem apaga) um arquivo que já existia.
+        // DeleteOnClose: o Windows apaga o arquivo ao fechar o handle, mesmo se o teste falhar no meio.
+        var path = Path.Combine(root, FilePrefix + Guid.NewGuid().ToString("N")[..12] + ".tmp");
+        var created = false;
         try
         {
-            using var handle = File.OpenHandle(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None,
-                FileOptions.Asynchronous | FileOptions.WriteThrough | NoBuffering, preallocationSize: size);
+            using var handle = File.OpenHandle(path, FileMode.CreateNew, FileAccess.ReadWrite, FileShare.None,
+                FileOptions.Asynchronous | FileOptions.WriteThrough | NoBuffering | DeleteOnClose, preallocationSize: size);
+            created = true;
 
             // 1) Arquivo cheio de dados aleatórios (não medido): lê de verdade do disco, sem "zeros" comprimíveis.
             progress("Preparando o arquivo de teste", 0);
@@ -102,7 +108,9 @@ public static class DiskBenchmark
         }
         finally
         {
-            try { File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            // Só o arquivo que este teste criou (o DeleteOnClose já apagou; isto é a garantia).
+            if (created)
+                try { File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
         }
     }
 

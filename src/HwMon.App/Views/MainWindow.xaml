@@ -196,10 +196,10 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type vm:MachineViewModel}">
-                                <Border Style="{StaticResource Card}" Width="440" Padding="18" CornerRadius="16" Margin="0,0,12,12" Cursor="Hand">
-                                    <Border.InputBindings>
-                                        <MouseBinding Gesture="LeftClick" Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}"/>
-                                    </Border.InputBindings>
+                                <!-- Abre ao soltar o botão (MouseUp): ao abrir no MouseDown, o MouseUp caía no cartão que estivesse embaixo do
+                                     ponteiro na página da máquina e abria o histórico dele. -->
+                                <Border Style="{StaticResource Card}" Width="440" Padding="18" CornerRadius="16" Margin="0,0,12,12" Cursor="Hand"
+                                        MouseLeftButtonUp="OverviewCard_Click">
                                     <StackPanel>
                                         <Grid>
                                             <Grid.ColumnDefinitions>

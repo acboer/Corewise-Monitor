@@ -1,12 +1,12 @@
 # Como instalar o Corewise (versão de teste)
 
-O Corewise mostra temperaturas, uso, ventoinhas, discos, rede, bateria de headset/mouse, FPS em jogos e benchmarks
+O Corewise mostra temperaturas, uso, ventoinhas, discos, rede, bateria de headset/mouse/controle, FPS em jogos e benchmarks
 de um ou vários PCs da sua rede, num painel e num widget. Funciona em português e em inglês (segue o idioma do
 Windows; dá para trocar em Configurações).
 
 ## Instalar
 
-1. Baixe `CorewiseSetup-0.13.1.exe` e dê dois cliques.
+1. Baixe `CorewiseSetup-0.13.2.exe` e dê dois cliques.
 2. O Windows deve avisar **"O Windows protegeu o computador"** (o instalador ainda não tem assinatura digital).
    Clique em **Mais informações** → **Executar assim mesmo**.
    Se em vez disso aparecer **"O controle inteligente de aplicativos bloqueou um aplicativo"**, não há botão para

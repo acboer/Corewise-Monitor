@@ -594,7 +594,7 @@
   "Calculando os resultados de referência": "Computing reference results",
   "Preparando a memória": "Preparing memory",
   "Cópia": "Copy",
-  "cópia de 512 MB (leitura + escrita)": "512 MB copy (read + write)",
+  "cópia de {0} MB (leitura + escrita)": "{0} MB copy (read + write)",
   "bloco de {0} MB · {1} threads": "{0} MB block · {1} threads",
   "Abrindo a placa de vídeo": "Opening the graphics card",
   "Cálculo (FP32)": "Compute (FP32)",
@@ -747,5 +747,20 @@
   "workstation ≈ 1000": "Ryzen 9 9950X ≈ 1000",
   "Durante o teste, a CPU: {0}.": "During the test, the CPU: {0}.",
   "{0} pentes": "{0} modules",
-  "no {0} · {1} · {2} FPS médio": "on {0} · {1} · {2} FPS average"
+  "no {0} · {1} · {2} FPS médio": "on {0} · {1} · {2} FPS average",
+
+  // 0.13.2: periféricos do Windows (Bluetooth, controle Xbox), saúde dos discos, testes e pareamento
+  "com fio": "wired",
+  "nível aproximado": "approximate level",
+  "o controle informa só o nível aproximado": "the controller only reports an approximate level",
+  "Controle Xbox": "Xbox Controller",
+  "Controle Xbox {0}": "Xbox Controller {0}",
+  "sem leitura": "no reading",
+  "{0} sem leitura": "{0} without a reading",
+  "Falha no teste: {0}": "Test failure: {0}",
+  "Uma das threads do teste falhou: {0}": "One of the test threads failed: {0}",
+  "A placa de vídeo parou de responder durante o teste.": "The graphics card stopped responding during the test.",
+  "A placa de vídeo não terminou a última carga a tempo.": "The graphics card did not finish its last workload in time.",
+  "Muitas tentativas de pareamento ao mesmo tempo. Tente de novo em alguns segundos.": "Too many pairing attempts at once. Try again in a few seconds.",
+  "Outro teste de rede está em andamento nesta máquina. Tente de novo em alguns segundos.": "Another network test is running on this machine. Try again in a few seconds."
 }

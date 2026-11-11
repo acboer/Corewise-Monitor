@@ -108,6 +108,20 @@ public sealed class WidgetViewModel : ObservableObject
         if (_current is not null) _current.Updated -= OnUpdated;
     }
 
+    /// <summary>
+    /// Janela (re)aberta. O widget único reaproveita este objeto depois de fechado: sem voltar a ouvir, ele não via
+    /// mais a troca de estilo nas Configurações nem os valores novos, até reabrir o programa.
+    /// </summary>
+    public void Attach()
+    {
+        Detach();
+        SharedChanged += OnSharedChanged;
+        if (_current is not null) _current.Updated += OnUpdated;
+        Raise(nameof(IsVisual));
+        Raise(nameof(IsCompact));
+        OnUpdated();
+    }
+
     /// <summary>Todas as linhas (para atualizar os valores); a tela mostra <see cref="Groups"/>.</summary>
     public List<WidgetRow> Rows { get; } = new();
     public ObservableCollection<WidgetGroup> Groups { get; } = new();

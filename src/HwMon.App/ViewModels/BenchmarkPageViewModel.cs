@@ -303,7 +303,7 @@ public sealed class BenchmarkPageViewModel : ObservableObject
     private static void WriteNetHistory(List<NetBenchResult> all)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(NetHistoryPath)!);
-        File.WriteAllText(NetHistoryPath, JsonSerializer.Serialize(all.Take(200).ToList(), new JsonSerializerOptions { WriteIndented = true }));
+        SafeFile.WriteAllText(NetHistoryPath, JsonSerializer.Serialize(all.Take(200).ToList(), new JsonSerializerOptions { WriteIndented = true }));
     }
 
     private void LoadNetHistory()

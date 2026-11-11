@@ -361,6 +361,9 @@ public sealed class CollectorClient : IDisposable
     public Task<PairAskStatus> PairStatusAsync(string id, CancellationToken cancel = default)
         => GetAsync<PairAskStatus>($"v1/pair/ask/{Uri.EscapeDataString(id)}", cancel);
 
+    /// <summary>Desiste do pedido (janela fechada): um "Permitir" atrasado no outro PC não gera mais token.</summary>
+    public Task CancelPairAskAsync(string id, CancellationToken cancel = default) => DeleteAsync($"v1/pair/ask/{Uri.EscapeDataString(id)}", cancel);
+
     /// <summary>Pedidos de outros PCs esperando o "Permitir?" (só o painel deste PC, pela conexão local).</summary>
     public Task<List<PairPending>> PendingPairsAsync(CancellationToken cancel = default) => GetAsync<List<PairPending>>("v1/pair/pending", cancel);
 

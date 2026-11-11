@@ -52,7 +52,7 @@ public sealed class MachineStore
     }
 
     public List<PairedMachine> List()
-        => File.Exists(_path) ? JsonSerializer.Deserialize<List<PairedMachine>>(File.ReadAllText(_path)) ?? new() : new();
+        => SafeFile.ReadJson<List<PairedMachine>>(_path) ?? new();
 
     public PairedMachine? Find(string? nameOrHost)
     {
@@ -114,5 +114,5 @@ public sealed class MachineStore
     public static string Token(PairedMachine machine)
         => Encoding.UTF8.GetString(ProtectedData.Unprotect(Convert.FromBase64String(machine.ProtectedToken), null, DataProtectionScope.CurrentUser));
 
-    private void Write(List<PairedMachine> all) => File.WriteAllText(_path, JsonSerializer.Serialize(all, Json));
+    private void Write(List<PairedMachine> all) => SafeFile.WriteAllText(_path, JsonSerializer.Serialize(all, Json));
 }

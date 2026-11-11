@@ -56,23 +56,32 @@ public sealed class GpuBenchmark : IDisposable
     public GpuBenchmark()
     {
         using var factory = DXGI.CreateDXGIFactory1<IDXGIFactory1>();
-        IDXGIAdapter1? best = null;
-        ulong bestMemory = 0;
+        // Placas de hardware, a de mais memória dedicada primeiro. A integrada pode informar 0 de memória dedicada e
+        // ainda assim entra; se uma placa não aceitar DirectX 11, tenta a próxima.
+        var candidates = new List<IDXGIAdapter1>();
         for (uint i = 0; factory.EnumAdapters1(i, out var adapter).Success; i++)
         {
-            var desc = adapter.Description1;
-            if ((desc.Flags & AdapterFlags.Software) != 0 || (ulong)desc.DedicatedVideoMemory <= bestMemory) { adapter.Dispose(); continue; }
-            best?.Dispose();
-            best = adapter;
-            bestMemory = (ulong)desc.DedicatedVideoMemory;
+            if ((adapter.Description1.Flags & AdapterFlags.Software) != 0) adapter.Dispose();
+            else candidates.Add(adapter);
         }
-        if (best is null) throw new InvalidOperationException("Nenhuma placa de vídeo com DirectX 11 encontrada.");
-        using (best)
+        try
         {
-            Name = best.Description1.Description.Trim();
-            VramGb = bestMemory / 1073741824.0;
-            D3D11.D3D11CreateDevice(best, DriverType.Unknown, DeviceCreationFlags.None, [FeatureLevel.Level_11_0], out _device!, out _context!).CheckError();
+            foreach (var candidate in candidates.OrderByDescending(a => (ulong)a.Description1.DedicatedVideoMemory))
+            {
+                if (D3D11.D3D11CreateDevice(candidate, DriverType.Unknown, DeviceCreationFlags.None, [FeatureLevel.Level_11_0], out ID3D11Device device, out ID3D11DeviceContext context).Failure)
+                    continue;
+                _device = device;
+                _context = context;
+                Name = candidate.Description1.Description.Trim();
+                VramGb = (ulong)candidate.Description1.DedicatedVideoMemory / 1073741824.0;
+                break;
+            }
         }
+        finally
+        {
+            foreach (var a in candidates) a.Dispose();
+        }
+        if (_device is null || _context is null || Name is null) throw new InvalidOperationException("Nenhuma placa de vídeo com DirectX 11 encontrada.");
 
         var bytecode = Compiler.Compile(Shader, "main", "bench.hlsl", "cs_5_0", ShaderFlags.IeeeStrictness | ShaderFlags.OptimizationLevel3);
         _shader = _device.CreateComputeShader(bytecode.Span);
@@ -82,12 +91,25 @@ public sealed class GpuBenchmark : IDisposable
         _done = _device.CreateQuery(new QueryDescription(QueryType.Event));
     }
 
+    /// <summary>Um lote leva ~0,2 s; muito acima disso a placa (ou o driver) parou de responder.</summary>
+    private static readonly TimeSpan WaitLimit = TimeSpan.FromSeconds(20);
+
     private void Wait()
     {
         _context.End(_done);
         _context.Flush();
-        while (!_context.IsDataAvailable(_done)) Thread.Sleep(0);
+        var start = Stopwatch.GetTimestamp();
+        while (!_context.IsDataAvailable(_done))
+        {
+            var waited = Stopwatch.GetElapsedTime(start);
+            if (waited > WaitLimit) throw new TimeoutException("A placa de vídeo parou de responder durante o teste.");
+            // Os primeiros milissegundos com Sleep(0) (precisão da medida); depois cede a CPU de verdade.
+            Thread.Sleep(waited < TimeSpan.FromMilliseconds(5) ? 0 : 1);
+        }
     }
+
+    /// <summary>Preso enquanto um teste usa a placa: Dispose espera ele terminar antes de liberar os recursos.</summary>
+    private readonly object _inUse = new();
 
     private void Dispatch(int n)
     {
@@ -119,7 +141,10 @@ public sealed class GpuBenchmark : IDisposable
     /// <summary>GB/s de cópia dentro da VRAM (bytes lidos + escritos).</summary>
     public double Bandwidth(double seconds, CancellationToken cancel)
     {
-        const uint size = 512u << 20;
+        // 512 MB em cada um dos dois buffers; em placas com pouca memória dedicada (ou integradas, que informam 0),
+        // 256 MB. Acima de ~64 MB o tamanho não muda o resultado.
+        var size = VramGb >= 2 ? 512u << 20 : 256u << 20;
+        CopySizeMb = (int)(size >> 20);
         var desc = new BufferDescription(size, BindFlags.UnorderedAccess | BindFlags.ShaderResource, ResourceUsage.Default, CpuAccessFlags.None, ResourceOptionFlags.BufferAllowRawViews, 0);
         using var a = _device.CreateBuffer(desc);
         using var b = _device.CreateBuffer(desc);
@@ -144,8 +169,11 @@ public sealed class GpuBenchmark : IDisposable
     /// <summary>Carga contínua para o teste de estabilidade (até cancelar).</summary>
     public void Stress(CancellationToken cancel)
     {
-        while (!cancel.IsCancellationRequested) Dispatch(4);
+        lock (_inUse)
+            while (!cancel.IsCancellationRequested) Dispatch(4);
     }
+
+    public int CopySizeMb { get; private set; } = 512;
 
     public static Task<BenchResult> RunAsync(Action<string, double> progress, Action<BenchScore> partial, CancellationToken cancel)
         => Task.Run(() =>
@@ -163,7 +191,7 @@ public sealed class GpuBenchmark : IDisposable
 
             progress("Memória da placa (VRAM)", 0.6);
             var gbs = gpu.Bandwidth(5, cancel);
-            var s2 = new BenchScore { Key = "vram", Label = "Banda da VRAM", Value = Math.Round(gbs), Unit = "GB/s", Detail = "cópia de 512 MB (leitura + escrita)" };
+            var s2 = new BenchScore { Key = "vram", Label = "Banda da VRAM", Value = Math.Round(gbs), Unit = "GB/s", Detail = $"cópia de {gpu.CopySizeMb} MB (leitura + escrita)" };
             result.Scores.Add(s2);
             partial(s2);
 
@@ -173,6 +201,21 @@ public sealed class GpuBenchmark : IDisposable
         }, cancel);
 
     public void Dispose()
+    {
+        // A carga do teste de estabilidade roda em outra thread: só libera depois que ela parou. Se o driver travou
+        // e ela não para, é melhor deixar os recursos presos do que liberá-los em uso.
+        if (!Monitor.TryEnter(_inUse, TimeSpan.FromSeconds(30))) return;
+        try
+        {
+            DisposeResources();
+        }
+        finally
+        {
+            Monitor.Exit(_inUse);
+        }
+    }
+
+    private void DisposeResources()
     {
         _done.Dispose();
         _uav.Dispose();

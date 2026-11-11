@@ -490,6 +490,7 @@ public sealed class MachineViewModel : ObservableObject
         "Headset" => "kind-headset",
         "Mouse" or "Trackball" => "kind-mouse",
         "Teclado" or "Keyboard" or "Trackpad" or "Teclado numérico" or "Numpad" => "kind-keyboard",
+        "Controle" or "Controller" => "kind-gamepad",
         _ => "metric-battery",
     };
 
@@ -709,6 +710,16 @@ public sealed class MachineViewModel : ObservableObject
         _tPower = new TileViewModel(L.T("Energia"), "metric-power");
         _tPeriph = _peripheralIds.Count == 0 ? null : new TileViewModel(L.T("Periféricos"), "metric-battery");
 
+        // Clique no bloco abre o histórico do cartão correspondente.
+        _tCpu.Target = _cpuId;
+        if (_tGpu is not null) _tGpu.Target = _gpuId;
+        _tRam.Target = comps.Any(c => c.Id == "ram:0") ? "ram:0" : null;
+        _tNet.Target = _physicalNets.FirstOrDefault();
+        _tStorage.Target = comps.FirstOrDefault(c => c.Id == _letteredVolumes.FirstOrDefault())?.Parents.FirstOrDefault(p => _diskIds.Contains(p)) ?? _diskIds.FirstOrDefault();
+        _tDisks.Target = _diskIds.FirstOrDefault();
+        _tPower.Target = comps.Any(c => c.Kind is ComponentKind.Cpu or ComponentKind.Gpu) ? "energy" : null;
+        if (_tPeriph is not null) _tPeriph.Target = _peripheralIds.FirstOrDefault();
+
         _allTiles = new List<(string, TileViewModel?)>
         {
             ("cpu", _tCpu), ("gpu", _tGpu), ("ram", _tRam), ("net", _tNet), ("space", _tStorage), ("disks", _tDisks),
@@ -821,12 +832,27 @@ public sealed class MachineViewModel : ObservableObject
         }
         if (_tDisks is not null)
         {
-            var health = _diskIds.Select(id => Value(id, "health")?.Note).ToList();
-            var bad = health.Count(h => h is not null && !L.Is(h, "Saudável"));
-            _tDisks.Value = bad == 0 ? L.T("{0} saudáveis", _diskIds.Count) : L.T("{0} com problema", bad);
+            // Pelo código do Windows (0 saudável, 1 atenção, 2 com problema), só de leituras válidas: disco sem leitura
+            // (falha, indisponível, "desconhecida") não conta como saudável, aparece à parte.
+            int healthy = 0, bad = 0, unknown = 0;
+            foreach (var id in _diskIds)
+            {
+                var v = Value(id, "health");
+                if (v is { State: ReadingState.Ok or ReadingState.Stale, Value: { } code })
+                {
+                    if (code == 0) healthy++;
+                    else if (code is 1 or 2) bad++;
+                    else unknown++;
+                }
+                else unknown++;
+            }
+            _tDisks.Value = bad > 0 ? L.T("{0} com problema", bad)
+                : healthy > 0 ? L.T("{0} saudáveis", healthy)
+                : L.T("sem leitura");
             var temps = _diskIds.Select(id => Value(id, "temp")).Where(v => v?.Value is not null).ToList();
-            _tDisks.Sub = temps.Count > 0 ? L.T("até {0}", Format.Number(temps.Max(v => v!.Value!.Value), "°C")) : L.T("temperatura aguardando uso dos discos");
-            _tDisks.Severity = bad > 0 ? Severity.Critical : Severity.Normal;
+            var sub = temps.Count > 0 ? L.T("até {0}", Format.Number(temps.Max(v => v!.Value!.Value), "°C")) : L.T("temperatura aguardando uso dos discos");
+            _tDisks.Sub = unknown > 0 && (healthy > 0 || bad > 0) ? L.T("{0} sem leitura", unknown) + " · " + sub : sub;
+            _tDisks.Severity = bad > 0 ? Severity.Critical : healthy == 0 && unknown > 0 ? Severity.Caution : Severity.Normal;
         }
         if (_tPower is not null)
         {

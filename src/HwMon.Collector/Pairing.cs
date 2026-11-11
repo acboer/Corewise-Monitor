@@ -84,6 +84,11 @@ public sealed class PairedClient
     public string Id { get; set; } = "";
     public string Name { get; set; } = "";
     public string TokenHash { get; set; } = "";
+    /// <summary>
+    /// Token anterior deste mesmo painel, ainda aceito até o painel usar o novo. Um pareamento que o painel não
+    /// chegou a guardar (pedido aprovado depois de a janela fechar, resposta perdida) não derruba o que funciona.
+    /// </summary>
+    public string? PreviousTokenHash { get; set; }
     public DateTimeOffset PairedAt { get; set; }
     public DateTimeOffset? LastSeen { get; set; }
 }
@@ -103,7 +108,7 @@ public sealed class ClientRegistry
     }
 
     private List<PairedClient> Load()
-        => File.Exists(_path) ? JsonSerializer.Deserialize<List<PairedClient>>(File.ReadAllText(_path)) ?? new() : new();
+        => SafeFile.ReadJson<List<PairedClient>>(_path) ?? new();
 
     /// <summary>Recarrega do disco: o comando "revogar" altera o arquivo com o serviço rodando.</summary>
     public void Reload()
@@ -121,8 +126,10 @@ public sealed class ClientRegistry
         var token = Base64Url(RandomNumberGenerator.GetBytes(32));
         lock (_lock)
         {
-            _clients.RemoveAll(c => c.Id == clientId); // pareou de novo: substitui o token antigo
-            _clients.Add(new PairedClient { Id = clientId, Name = name, TokenHash = HashToken(token), PairedAt = DateTimeOffset.Now });
+            // Pareou de novo: o token novo vale já, e o anterior continua valendo até o painel aparecer com o novo.
+            var previous = _clients.FirstOrDefault(c => c.Id == clientId)?.TokenHash;
+            _clients.RemoveAll(c => c.Id == clientId);
+            _clients.Add(new PairedClient { Id = clientId, Name = name, TokenHash = HashToken(token), PreviousTokenHash = previous, PairedAt = DateTimeOffset.Now });
             Save();
         }
         return token;
@@ -136,13 +143,31 @@ public sealed class ClientRegistry
         lock (_lock)
         {
             // O comando "revogar" edita o arquivo com o serviço rodando: recarrega se mudou por fora.
-            var write = File.Exists(_path) ? File.GetLastWriteTimeUtc(_path) : DateTime.MinValue;
+            // Arquivo sumido ou ilegível neste instante (outro processo gravando): segue com a lista em memória, em vez
+            // de recusar todo mundo com 401 (o painel antes desistia da máquina até ser reaberto).
+            var write = File.Exists(_path) ? File.GetLastWriteTimeUtc(_path) : _loadedWrite;
             if (write != _loadedWrite)
             {
-                _clients = Load();
-                _loadedWrite = write;
+                try
+                {
+                    if (SafeFile.ReadJson<List<PairedClient>>(_path) is { } fresh)
+                    {
+                        _clients = fresh;
+                        _loadedWrite = write;
+                    }
+                }
+                catch (IOException)
+                {
+                    // tenta na próxima requisição
+                }
             }
             var client = _clients.FirstOrDefault(c => c.TokenHash == hash);
+            if (client is not null && client.PreviousTokenHash is not null)
+            {
+                client.PreviousTokenHash = null; // o painel já usa o token novo: o antigo deixa de valer
+                Save();
+            }
+            client ??= _clients.FirstOrDefault(c => c.PreviousTokenHash is not null && c.PreviousTokenHash == hash);
             if (client is null) return null;
             client.LastSeen = DateTimeOffset.Now;
             if (DateTimeOffset.Now - _lastSave > TimeSpan.FromMinutes(5)) Save();
@@ -163,7 +188,7 @@ public sealed class ClientRegistry
 
     private void Save()
     {
-        File.WriteAllText(_path, JsonSerializer.Serialize(_clients, DataStore.Json));
+        SafeFile.WriteAllText(_path, JsonSerializer.Serialize(_clients, DataStore.Json));
         _lastSave = DateTimeOffset.Now;
         _loadedWrite = File.GetLastWriteTimeUtc(_path);
     }

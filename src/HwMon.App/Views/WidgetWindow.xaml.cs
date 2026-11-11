@@ -14,6 +14,7 @@ public partial class WidgetWindow : Window
     {
         InitializeComponent();
         _vm = vm;
+        vm.Attach();
         DataContext = vm;
 
         var s = settings.Current.Widget;

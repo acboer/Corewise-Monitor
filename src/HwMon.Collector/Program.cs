@@ -100,6 +100,16 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
 
     var jsonOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.SerializerOptions;
     var pairGate = new SemaphoreSlim(1, 1);
+    var pairQueue = 0;
+
+    // O corpo vem de fora: campo omitido ou null no JSON chega como null mesmo sendo "string" no C#.
+    static bool ValidPairRequest(PairRequest? r)
+    {
+        if (r is null) return false;
+        r.Code ??= "";
+        r.ClientName ??= "";
+        return !string.IsNullOrWhiteSpace(r.ClientId) && r.ClientId.Length <= 100 && r.ClientName.Length <= 100 && r.Code.Length <= 20;
+    }
 
     // ---------------------------------------------------------------- público
 
@@ -117,14 +127,27 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
     app.MapPost("/v1/pair", async (PairRequest request, EngineHost host, PairingCodes codes, ClientRegistry clients, HttpContext http) =>
     {
         if (host.Engine is not { } e) return Results.Problem(L.T("O serviço ainda está iniciando."), statusCode: 503);
-        if (string.IsNullOrWhiteSpace(request.ClientId) || request.ClientId.Length > 100 || request.ClientName.Length > 100)
-            return Results.BadRequest();
+        if (!ValidPairRequest(request)) return Results.BadRequest();
 
-        // Uma tentativa por vez, com 1 s de espera: 6 dígitos não podem ser testados em massa.
-        await pairGate.WaitAsync();
+        // Uma tentativa por vez, com 1 s de espera: 6 dígitos não podem ser testados em massa. Fila curta: uma
+        // rajada de pedidos recebe 429 em vez de acumular espera (e quem desistiu sai da fila).
+        if (Interlocked.Increment(ref pairQueue) > 8)
+        {
+            Interlocked.Decrement(ref pairQueue);
+            return Results.Problem(L.T("Muitas tentativas de pareamento ao mesmo tempo. Tente de novo em alguns segundos."), statusCode: 429);
+        }
         try
         {
-            await Task.Delay(1000);
+            await pairGate.WaitAsync(http.RequestAborted);
+        }
+        catch (OperationCanceledException)
+        {
+            Interlocked.Decrement(ref pairQueue);
+            return Results.StatusCode(499);
+        }
+        try
+        {
+            await Task.Delay(1000, http.RequestAborted);
             // O painel do próprio PC (instalação completa) pareia sem código: o pedido vem de 127.0.0.1/::1, e quem já
             // roda programas neste PC não ganha nada a mais com isso. De outro PC, sempre com código.
             var fromThisPc = http.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip) && string.IsNullOrEmpty(request.Code);
@@ -144,9 +167,14 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
                 _ => Results.Problem(L.T("Código incorreto."), statusCode: 403),
             };
         }
+        catch (OperationCanceledException)
+        {
+            return Results.StatusCode(499);
+        }
         finally
         {
             pairGate.Release();
+            Interlocked.Decrement(ref pairQueue);
         }
     });
 
@@ -154,8 +182,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
     app.MapPost("/v1/pair/ask", (PairRequest request, EngineHost host, PairRequests requests, HttpContext http) =>
     {
         if (host.Engine is not { } e) return Results.Problem(L.T("O serviço ainda está iniciando."), statusCode: 503);
-        if (string.IsNullOrWhiteSpace(request.ClientId) || request.ClientId.Length > 100 || request.ClientName.Length > 100)
-            return Results.BadRequest();
+        if (!ValidPairRequest(request)) return Results.BadRequest();
         var name = string.IsNullOrWhiteSpace(request.ClientName) ? "sem nome" : request.ClientName.Trim();
         var id = requests.Ask(request.ClientId, name, http.Connection.RemoteIpAddress is { IsIPv4MappedToIPv6: true } v4 ? v4.MapToIPv4().ToString() : http.Connection.RemoteIpAddress?.ToString());
         log.LogInformation("Pedido de pareamento de {Name} ({Ip})", name, http.Connection.RemoteIpAddress);
@@ -164,6 +191,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
             : Results.Ok(new PairAskResponse { Id = id, MachineId = e.MachineId, HostName = e.HostName });
     });
     app.MapGet("/v1/pair/ask/{id}", (string id, PairRequests requests) => Results.Ok(requests.Status(id)));
+    app.MapDelete("/v1/pair/ask/{id}", (string id, PairRequests requests) => requests.Cancel(id) ? Results.Ok() : Results.NotFound());
 
     // ---------------------------------------------------------------- autenticado
 
@@ -227,31 +255,52 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
     // firewall). download = coletor → painel; upload = painel → coletor; ping = ida e volta de um pedido vazio.
     var noise = new byte[1 << 20];
     Random.Shared.NextBytes(noise); // aleatório: não comprime em nenhum ponto do caminho
+    // Teste de rede: até 8 fluxos ao mesmo tempo (o painel usa 4 por teste); além disso, 429. Um teste a mais em
+    // paralelo só dividiria a banda e estragaria os dois resultados.
+    var netStreams = new SemaphoreSlim(8, 8);
     api.MapGet("/bench/net/download", async (HttpContext http, int? seconds, CancellationToken cancel) =>
     {
-        var until = DateTime.UtcNow.AddSeconds(Math.Clamp(seconds ?? 10, 1, 30));
-        http.Response.ContentType = "application/octet-stream";
+        if (!netStreams.Wait(0)) return Results.Problem(L.T("Outro teste de rede está em andamento nesta máquina. Tente de novo em alguns segundos."), statusCode: 429);
         try
         {
-            while (DateTime.UtcNow < until && !cancel.IsCancellationRequested)
-                await http.Response.Body.WriteAsync(noise, cancel);
+            var limit = System.Diagnostics.Stopwatch.StartNew();
+            var duration = TimeSpan.FromSeconds(Math.Clamp(seconds ?? 10, 1, 30));
+            http.Response.ContentType = "application/octet-stream";
+            try
+            {
+                while (limit.Elapsed < duration && !cancel.IsCancellationRequested)
+                    await http.Response.Body.WriteAsync(noise, cancel);
+            }
+            catch (OperationCanceledException) { }
+            catch (IOException) { }
+            return Results.Empty;
         }
-        catch (OperationCanceledException) { }
-        catch (IOException) { }
+        finally
+        {
+            netStreams.Release();
+        }
     });
     api.MapPost("/bench/net/upload", async (HttpContext http, CancellationToken cancel) =>
     {
         // Sem o limite padrão de 30 MB por pedido: o teste manda centenas de MB.
         if (http.Features.Get<Microsoft.AspNetCore.Http.Features.IHttpMaxRequestBodySizeFeature>() is { IsReadOnly: false } limit) limit.MaxRequestBodySize = null;
+        if (!netStreams.Wait(0)) return Results.Problem(L.T("Outro teste de rede está em andamento nesta máquina. Tente de novo em alguns segundos."), statusCode: 429);
         var buffer = new byte[1 << 16];
         long total = 0;
         var clock = System.Diagnostics.Stopwatch.StartNew();
+        // O teste dura até 30 s: um envio que não acaba é cortado em 45 s.
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancel);
+        deadline.CancelAfter(TimeSpan.FromSeconds(45));
         try
         {
             int n;
-            while ((n = await http.Request.Body.ReadAsync(buffer, cancel)) > 0) total += n;
+            while ((n = await http.Request.Body.ReadAsync(buffer, deadline.Token)) > 0) total += n;
         }
         catch (Exception ex) when (ex is OperationCanceledException or IOException or Microsoft.AspNetCore.Connections.ConnectionResetException) { }
+        finally
+        {
+            netStreams.Release();
+        }
         return Results.Ok(new { bytes = total, seconds = clock.Elapsed.TotalSeconds });
     });
     api.MapGet("/bench/ping", () => Results.Ok(new { t = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }));

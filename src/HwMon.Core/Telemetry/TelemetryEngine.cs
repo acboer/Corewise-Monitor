@@ -303,7 +303,8 @@ public sealed class TelemetryEngine : IDisposable
     private void PeripheralTick()
     {
         var p = _peripherals!;
-        if (DateTimeOffset.Now - _lastPeripheralScan >= _options.PeripheralScanInterval)
+        // Busca completa a cada 5 min, ou logo que algo for conectado/desconectado (controle, fone Bluetooth, dongle).
+        if (DateTimeOffset.Now - _lastPeripheralScan >= _options.PeripheralScanInterval || p.DevicesChanged())
         {
             _lastPeripheralScan = DateTimeOffset.Now;
             if (p.Scan())

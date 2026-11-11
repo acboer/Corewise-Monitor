@@ -77,28 +77,44 @@ public static unsafe class MemoryBenchmark
         var slice = size / threads / 4096 * 4096;
         long bytes = 0;
         var stop = 0;
-        var go = new ManualResetEventSlim(false);
-        var workers = Enumerable.Range(0, threads).Select(i => new Thread(() =>
+        using var go = new ManualResetEventSlim(false);
+        var fault = new WorkerFault();
+        var workers = new List<Thread>();
+        long before = 0, after = 0;
+        double elapsed = 0;
+        try
         {
-            var p = block + i * slice;
-            go.Wait();
-            while (Volatile.Read(ref stop) == 0 && !cancel.IsCancellationRequested)
+            for (var i = 0; i < threads; i++)
             {
-                pass(p, slice);
-                Interlocked.Add(ref bytes, slice);
+                var p = block + i * slice;
+                var t = new Thread(fault.Wrap(() =>
+                {
+                    go.Wait();
+                    while (Volatile.Read(ref stop) == 0 && !cancel.IsCancellationRequested)
+                    {
+                        pass(p, slice);
+                        Interlocked.Add(ref bytes, slice);
+                    }
+                }, () => Volatile.Write(ref stop, 1))) { IsBackground = true };
+                t.Start();
+                workers.Add(t);
             }
-        }) { IsBackground = true }).ToList();
-        foreach (var t in workers) t.Start();
-        // Primeira passada de aquecimento, depois mede.
-        go.Set();
-        Thread.Sleep(300);
-        var before = Interlocked.Read(ref bytes);
-        var t0 = Stopwatch.GetTimestamp();
-        Thread.Sleep(TimeSpan.FromSeconds(Seconds));
-        var after = Interlocked.Read(ref bytes);
-        var elapsed = Stopwatch.GetElapsedTime(t0).TotalSeconds;
-        Volatile.Write(ref stop, 1);
-        foreach (var t in workers) t.Join();
+            // Primeira passada de aquecimento, depois mede.
+            go.Set();
+            Thread.Sleep(300);
+            before = Interlocked.Read(ref bytes);
+            var t0 = Stopwatch.GetTimestamp();
+            Thread.Sleep(TimeSpan.FromSeconds(Seconds));
+            after = Interlocked.Read(ref bytes);
+            elapsed = Stopwatch.GetElapsedTime(t0).TotalSeconds;
+        }
+        finally
+        {
+            Volatile.Write(ref stop, 1);
+            go.Set();
+            foreach (var t in workers) t.Join();
+        }
+        fault.ThrowIfFaulted();
         cancel.ThrowIfCancellationRequested();
         return (after - before) / elapsed / 1e9;
     }

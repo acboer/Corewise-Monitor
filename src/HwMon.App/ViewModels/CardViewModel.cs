@@ -153,4 +153,6 @@ public sealed class TileViewModel(string title, string icon) : ObservableObject
     public string? Sub { get => _sub; set => Set(ref _sub, value); }
     public double? Fraction { get => _fraction; set => Set(ref _fraction, value); }
     public Severity Severity { get => _severity; set => Set(ref _severity, value); }
+    /// <summary>Cartão (ComponentId) aberto ao clicar no bloco da Visão geral; nulo abre só a página da máquina.</summary>
+    public string? Target { get; set; }
 }

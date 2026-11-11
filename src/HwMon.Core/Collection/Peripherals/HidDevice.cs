@@ -14,6 +14,15 @@ public static class HidDevice
     public static List<HidInfo> Enumerate(ushort? vendorId = null)
     {
         var list = new List<HidInfo>();
+        foreach (var path in Paths())
+            if (Describe(path) is { } info && (vendorId is null || info.VendorId == vendorId)) list.Add(info);
+        return list;
+    }
+
+    /// <summary>Só os caminhos das coleções HID presentes, sem abrir nenhuma: barato o bastante para rodar a cada poucos segundos.</summary>
+    public static List<string> Paths()
+    {
+        var list = new List<string>();
         HidD_GetHidGuid(out var guid);
         var set = SetupDiGetClassDevs(ref guid, IntPtr.Zero, IntPtr.Zero, 0x10 | 0x2); // DEVICEINTERFACE | PRESENT
         if (set == IntPtr.Zero || set == new IntPtr(-1)) return list;
@@ -29,9 +38,7 @@ public static class HidDevice
                 {
                     Marshal.WriteInt32(detail, IntPtr.Size == 8 ? 8 : 6); // cbSize de SP_DEVICE_INTERFACE_DETAIL_DATA_W
                     if (!SetupDiGetDeviceInterfaceDetail(set, ref iface, detail, size, out _, IntPtr.Zero)) continue;
-                    var path = Marshal.PtrToStringUni(detail + 4);
-                    if (path is null) continue;
-                    if (Describe(path) is { } info && (vendorId is null || info.VendorId == vendorId)) list.Add(info);
+                    if (Marshal.PtrToStringUni(detail + 4) is { } path) list.Add(path);
                 }
                 finally
                 {
