@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -6,15 +6,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <!-- Só pelo ícone da bandeja (NotifyIcon); os usings globais do Windows Forms ficam desligados abaixo. -->
+    <!-- SÃ³ pelo Ã­cone da bandeja (NotifyIcon); os usings globais do Windows Forms ficam desligados abaixo. -->
     <UseWindowsForms>true</UseWindowsForms>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AssemblyName>Corewise</AssemblyName>
     <RootNamespace>HwMon.App</RootNamespace>
-    <Version>0.13.2</Version>
+    <Version>0.13.3</Version>
     <Product>Corewise</Product>
     <ApplicationIcon>..\..\icons\app.ico</ApplicationIcon>
-    <!-- Tema Fluent do WPF (Application.ThemeMode) ainda é marcado como experimental. -->
+    <!-- Tema Fluent do WPF (Application.ThemeMode) ainda Ã© marcado como experimental. -->
     <NoWarn>$(NoWarn);WPF0001</NoWarn>
   </PropertyGroup>
 

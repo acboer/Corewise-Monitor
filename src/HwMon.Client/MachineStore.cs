@@ -21,6 +21,8 @@ public sealed class PairedMachine
     /// segue pelo IP; se o IP mudar (DHCP), o nome resolve o novo.
     /// </summary>
     public List<string> KnownAddresses { get; set; } = new();
+    /// <summary>MACs das placas de rede (do serviço), guardados para ligar o PC pela rede quando ele estiver desligado.</summary>
+    public List<string> WakeMacs { get; set; } = new();
 }
 
 /// <summary>PCs pareados deste usuário, em %AppData%\HwMon\maquinas.json.</summary>
@@ -65,10 +67,13 @@ public sealed class MachineStore
     public void Save(PairedMachine machine, string token)
     {
         machine.ProtectedToken = Convert.ToBase64String(ProtectedData.Protect(Encoding.UTF8.GetBytes(token), null, DataProtectionScope.CurrentUser));
-        var all = List();
-        all.RemoveAll(m => m.MachineId == machine.MachineId || m.Name.Equals(machine.Name, StringComparison.OrdinalIgnoreCase));
-        all.Add(machine);
-        Write(all);
+        lock (WriteLock)
+        {
+            var all = List();
+            all.RemoveAll(m => m.MachineId == machine.MachineId || m.Name.Equals(machine.Name, StringComparison.OrdinalIgnoreCase));
+            all.Add(machine);
+            Write(all);
+        }
     }
 
     /// <summary>Troca o apelido local de uma máquina. Falso se o nome já é de outra máquina pareada.</summary>
@@ -107,6 +112,19 @@ public sealed class MachineStore
             m.KnownAddresses.Remove(address);
             m.KnownAddresses.Insert(0, address);
             if (m.KnownAddresses.Count > 3) m.KnownAddresses.RemoveRange(3, m.KnownAddresses.Count - 3);
+            Write(all);
+        }
+    }
+
+    /// <summary>Guarda os MACs informados pelo serviço (para o Wake-on-LAN), se mudaram.</summary>
+    public void RememberWakeMacs(string machineId, List<string> macs)
+    {
+        lock (WriteLock)
+        {
+            var all = List();
+            var m = all.FirstOrDefault(x => x.MachineId == machineId);
+            if (m is null || m.WakeMacs.SequenceEqual(macs)) return;
+            m.WakeMacs = macs.ToList();
             Write(all);
         }
     }

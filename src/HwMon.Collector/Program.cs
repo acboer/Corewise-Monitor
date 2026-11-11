@@ -84,7 +84,13 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
     builder.Services.AddSingleton(new HwMon.Core.Collection.ProcessMonitor());
     builder.Services.AddSingleton<BenchmarkHost>();
     builder.Services.AddSingleton<LoadBenchHost>();
-    builder.Services.AddSingleton(sp => new HwMon.Core.Collection.FrameMonitor(m => sp.GetRequiredService<ILogger<EngineHost>>().LogInformation("{Message}", m)));
+    // O logger é pego uma vez, na criação: no desligamento o Dispose do monitor escreve no log depois de o contêiner de
+    // serviços já ter sido descartado, e buscar o logger ali derrubava o serviço (ObjectDisposedException).
+    builder.Services.AddSingleton(sp =>
+    {
+        var frameLog = sp.GetRequiredService<ILogger<EngineHost>>();
+        return new HwMon.Core.Collection.FrameMonitor(m => { try { frameLog.LogInformation("{Message}", m); } catch (ObjectDisposedException) { } });
+    });
     builder.Services.AddSingleton<EngineHost>();
     builder.Services.AddHostedService(sp => sp.GetRequiredService<EngineHost>());
     builder.Services.AddSingleton<HwMon.Collector.History.GameRecorder>();
@@ -152,7 +158,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
             // roda programas neste PC não ganha nada a mais com isso. De outro PC, sempre com código.
             var fromThisPc = http.Connection.RemoteIpAddress is { } ip && System.Net.IPAddress.IsLoopback(ip) && string.IsNullOrEmpty(request.Code);
             var result = fromThisPc ? PairingCodes.Result.Ok : codes.Verify(request.Code);
-            log.LogInformation("Pareamento de {Name} ({Ip}): {Result}", request.ClientName, http.Connection.RemoteIpAddress, result);
+            log.LogWarning("Pareamento de {Name} ({Ip}): {Result}", request.ClientName, http.Connection.RemoteIpAddress, result);
             return result switch
             {
                 PairingCodes.Result.Ok => Results.Ok(new PairResponse
@@ -195,12 +201,25 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
 
     // ---------------------------------------------------------------- autenticado
 
+    var rejectLog = new System.Collections.Concurrent.ConcurrentDictionary<string, DateTime>();
     var api = app.MapGroup("/v1").AddEndpointFilter(async (ctx, next) =>
     {
         var header = ctx.HttpContext.Request.Headers.Authorization.ToString();
-        if (!header.StartsWith("Bearer ", StringComparison.Ordinal)
-            || ctx.HttpContext.RequestServices.GetRequiredService<ClientRegistry>().Validate(header["Bearer ".Length..].Trim()) is null)
+        var registry = ctx.HttpContext.RequestServices.GetRequiredService<ClientRegistry>();
+        if (!header.StartsWith("Bearer ", StringComparison.Ordinal) || registry.Validate(header["Bearer ".Length..].Trim()) is null)
+        {
+            // Diagnóstico de "acesso revogado" que ninguém revogou: quem, com qual token (só o começo do hash) e o que o
+            // serviço tem cadastrado. Uma linha por endereço a cada 10 min, para não encher o log.
+            var ip = ctx.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "?";
+            if (rejectLog.TryGetValue(ip, out var lastLog) is false || DateTime.UtcNow - lastLog > TimeSpan.FromMinutes(10))
+            {
+                rejectLog[ip] = DateTime.UtcNow;
+                log.LogWarning("Token recusado de {Ip} em {Path}: {Token}. Cadastrados: {Clients}", ip, ctx.HttpContext.Request.Path,
+                    header.StartsWith("Bearer ", StringComparison.Ordinal) ? ClientRegistry.HashPrefix(header["Bearer ".Length..].Trim()) : "sem token",
+                    registry.Describe());
+            }
             return Results.Problem(L.T("Cliente não pareado ou acesso revogado."), statusCode: 401);
+        }
         if (ctx.HttpContext.RequestServices.GetRequiredService<EngineHost>().Engine is null)
             return Results.Problem(L.T("O serviço ainda está iniciando."), statusCode: 503);
         return await next(ctx);
@@ -213,7 +232,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
     {
         if (!Local(http)) return Results.StatusCode(403);
         var ok = requests.Answer(id, approve);
-        log.LogInformation("Pedido de pareamento {Id}: {Answer}", id, approve ? "permitido" : "recusado");
+        log.LogWarning("Pedido de pareamento {Id}: {Answer}", id, approve ? "permitido" : "recusado");
         return ok ? Results.Ok() : Results.NotFound();
     });
     api.MapPost("/pair/code", (PairingCodes codes, EngineHost host, HttpContext http) => !Local(http)

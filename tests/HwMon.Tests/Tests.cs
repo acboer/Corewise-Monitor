@@ -214,6 +214,7 @@ public class NetDailyTotalsTests
 }
 
 // Tradução: trecho de frase com espaço na ponta (o aviso de conexão perdida aparecia em português).
+[Collection("Idioma")] // L é global: testes que trocam o idioma não podem rodar em paralelo
 public class TranslationTests
 {
     [Fact]
@@ -282,5 +283,61 @@ public class RepairTests
         Assert.True(requests.Cancel(id)); // a janela do painel fechou
         Assert.False(requests.Answer(id, approve: true)); // "Permitir" atrasado no outro PC
         Assert.NotNull(clients.Validate(working));
+    }
+}
+
+// Wake-on-LAN: pacote mágico e leitura do MAC.
+public class WakeOnLanTests
+{
+    [Theory]
+    [InlineData("AA-BB-CC-DD-EE-FF")]
+    [InlineData("aa:bb:cc:dd:ee:ff")]
+    [InlineData("AABBCCDDEEFF")]
+    public void Parses_common_mac_formats(string mac)
+        => Assert.Equal(new byte[] { 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF }, WakeOnLan.ParseMac(mac));
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("AABBCCDDEE")]
+    [InlineData("GG-BB-CC-DD-EE-FF")]
+    public void Rejects_invalid_macs(string mac) => Assert.Null(WakeOnLan.ParseMac(mac));
+
+    [Fact]
+    public void Magic_packet_is_six_ff_and_sixteen_copies_of_the_mac()
+    {
+        var mac = new byte[] { 1, 2, 3, 4, 5, 6 };
+        var packet = WakeOnLan.MagicPacket(mac);
+        Assert.Equal(102, packet.Length);
+        Assert.All(packet.Take(6), b => Assert.Equal(0xFF, b));
+        for (var i = 0; i < 16; i++) Assert.Equal(mac, packet.Skip(6 + i * 6).Take(6));
+    }
+}
+
+// Textos que o serviço manda em português durante os testes: o painel em inglês precisa traduzir.
+[Collection("Idioma")]
+public class ServiceTextTranslationTests
+{
+    [Theory]
+    [InlineData("SEQ1M Q8T1 · escrita", "SEQ1M Q8T1 · write")]
+    [InlineData("RND4K Q1T1 · leitura", "RND4K Q1T1 · read")]
+    [InlineData("Estressando · faltam 9:37 · 0 erros", "Stressing · 9:37 left · 0 errors")]
+    [InlineData("Durante o teste, a CPU: até 52 °C · clock médio 5,06 GHz · até 38 W.", "During the test, the CPU: up to 52 °C · average clock 5,06 GHz · up to 38 W.")]
+    [InlineData("CPU chegou a 57 °C.", "CPU reached 57 °C.")]
+    public void Benchmark_progress_and_notes(string pt, string en)
+    {
+        L.Use("en");
+        try { Assert.Equal(en, L.T(pt)); }
+        finally { L.Use("pt"); }
+    }
+
+    [Fact]
+    public void Translation_file_has_no_duplicate_keys()
+    {
+        var path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "src", "HwMon.Core", "Idiomas", "en.json"));
+        if (!System.IO.File.Exists(path)) path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "HwMon.Core", "Idiomas", "en.json"));
+        var keys = System.Text.RegularExpressions.Regex.Matches(System.IO.File.ReadAllText(path), @"^\s*(""(?:[^""\\]|\\.)*"")\s*:", System.Text.RegularExpressions.RegexOptions.Multiline)
+            .Select(m => m.Groups[1].Value).ToList();
+        Assert.NotEmpty(keys);
+        Assert.Empty(keys.GroupBy(k => k, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key));
     }
 }

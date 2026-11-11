@@ -193,7 +193,7 @@ public sealed class LoadBenchHost(EngineHost host, DataStore store, ILogger<Load
             if (temps.Count > 0) parts.Add($"até {temps.Max():0} °C");
             if (clocks.Count > 0) parts.Add($"clock médio {clocks.Average() / 1000:0.00} GHz");
             if (power.Count > 0) parts.Add($"até {power.Max():0} W");
-            if (parts.Count > 0) result.Notes.Add($"Durante o teste, {(gpu ? "a placa" : "a CPU")}: {string.Join(", ", parts)}.");
+            if (parts.Count > 0) result.Notes.Add($"Durante o teste, {(gpu ? "a placa" : "a CPU")}: {string.Join(" · ", parts)}.");
         }
         // Guarda no máximo ~720 pontos (estabilidade de 1 h vira um ponto a cada 5 s).
         if (result.Samples.Count > 720)

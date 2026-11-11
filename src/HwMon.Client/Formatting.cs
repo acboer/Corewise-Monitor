@@ -85,6 +85,6 @@ public static class Format
     public static string Ago(DateTimeOffset when)
     {
         var s = (DateTimeOffset.Now - when).TotalSeconds;
-        return s < 3 ? L.T("agora") : s < 60 ? L.T("há {0:0} s", s) : s < 3600 ? L.T("há {0:0} min", s / 60) : DayMonth(when.LocalDateTime) + when.ToString(" HH:mm", Pt);
+        return s < 5 ? L.T("agora") : s < 60 ? L.T("há {0:0} s", s) : s < 3600 ? L.T("há {0:0} min", s / 60) : DayMonth(when.LocalDateTime) + when.ToString(" HH:mm", Pt);
     }
 }

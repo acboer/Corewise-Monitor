@@ -193,6 +193,19 @@ public sealed class ClientRegistry
         _loadedWrite = File.GetLastWriteTimeUtc(_path);
     }
 
+    /// <summary>Começo do hash do token (para o log de diagnóstico: identifica sem expor).</summary>
+    public static string HashPrefix(string token) => HashToken(token)[..10];
+
+    /// <summary>Resumo dos clientes cadastrados para o log: nome, começo do hash atual/anterior, quando pareou.</summary>
+    public string Describe()
+    {
+        lock (_lock)
+            return _clients.Count == 0 ? "nenhum" : string.Join("; ", _clients.Select(c =>
+                $"{c.Name} {c.TokenHash[..Math.Min(10, c.TokenHash.Length)]}" +
+                (c.PreviousTokenHash is { } p ? $" (anterior {p[..Math.Min(10, p.Length)]})" : "") +
+                $" desde {c.PairedAt:dd/MM HH:mm}"));
+    }
+
     private static string HashToken(string token) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     private static string Base64Url(byte[] b) => Convert.ToBase64String(b).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 }

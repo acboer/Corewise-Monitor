@@ -1,15 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Version>0.13.2</Version>
+    <Version>0.13.3</Version>
     <AssemblyName>Corewise.Service</AssemblyName>
     <Product>Corewise</Product>
     <ApplicationIcon>..\..\icons\app.ico</ApplicationIcon>
-    <!-- O serviço não usa appsettings: a configuração fica em %ProgramData%\Corewise\config.json -->
+    <!-- O serviÃ§o nÃ£o usa appsettings: a configuraÃ§Ã£o fica em %ProgramData%\Corewise\config.json -->
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
     <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>

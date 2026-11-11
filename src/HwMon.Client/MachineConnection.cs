@@ -30,6 +30,26 @@ public sealed class MachineConnection(PairedMachine machine, MachineStore? store
 
     public PairedMachine Machine { get; } = machine;
 
+    /// <summary>
+    /// Diagnóstico de "acesso revogado": qual máquina, por qual endereço e o começo do hash do token enviado (o serviço
+    /// registra o mesmo hash no log dele). Em %AppData%\Corewise\diagnostico.log, até ~200 KB.
+    /// </summary>
+    private void LogRejected()
+    {
+        try
+        {
+            var token = MachineStore.Token(Machine);
+            var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(token)))[..10];
+            var path = Path.Combine(HwMon.Core.AppPaths.UserData, "diagnostico.log");
+            if (File.Exists(path) && new FileInfo(path).Length > 200_000) File.Delete(path);
+            File.AppendAllText(path, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {Machine.Name} ({Machine.Host}, {string.Join("/", Machine.KnownAddresses)}): token {hash} recusado; pareado em {Machine.PairedAt:dd/MM HH:mm}{Environment.NewLine}");
+        }
+        catch (Exception)
+        {
+            // diagnóstico não pode atrapalhar a conexão
+        }
+    }
+
     public async Task RunAsync(Action<ConnectionState> onChange, CancellationToken cancel)
     {
         MachineDescriptor? descriptor = null;
@@ -83,6 +103,7 @@ public sealed class MachineConnection(PairedMachine machine, MachineStore? store
             {
                 // Token recusado. Pode ser de vez (revogado, serviço reinstalado do zero) ou passageiro (serviço sendo
                 // atualizado): antes a conexão desistia até reabrir o painel. Agora continua tentando, devagar.
+                if (unauthorized == 0) LogRejected();
                 var wait = TimeSpan.FromSeconds(Math.Min(30 * ++unauthorized, 300));
                 Set(ConnectionStatus.Failed, L.T("Acesso revogado ou pareamento perdido. Pareie de novo."), wait);
                 try { await Task.Delay(wait, cancel); }

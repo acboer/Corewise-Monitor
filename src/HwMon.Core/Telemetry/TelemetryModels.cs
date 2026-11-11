@@ -96,6 +96,11 @@ public sealed class MachineDescriptor
     public string AgentVersion { get; set; } = "";
     public int Version { get; set; }
     public List<ComponentDescriptor> Components { get; set; } = new();
+    /// <summary>
+    /// Endereços MAC das placas de rede físicas ligadas (cabo primeiro), para o painel ligar o PC pela rede (Wake-on-LAN)
+    /// quando ele estiver desligado. Coletor 0.13.3+.
+    /// </summary>
+    public List<string> WakeMacs { get; set; } = new();
 }
 
 public sealed class ComponentDescriptor

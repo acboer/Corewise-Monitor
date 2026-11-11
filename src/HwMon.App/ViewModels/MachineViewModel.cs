@@ -215,7 +215,78 @@ public sealed class MachineViewModel : ObservableObject
     }
     public bool IsNas => Role?.Contains("NAS", StringComparison.OrdinalIgnoreCase) == true;
 
-    public ConnectionStatus Status { get => _status; private set { if (Set(ref _status, value)) Raise(nameof(IsConnected)); } }
+    public ConnectionStatus Status { get => _status; private set { if (Set(ref _status, value)) { Raise(nameof(IsConnected)); Raise(nameof(CanWake)); } } }
+
+    // ------------------------------------------------------------------ ligar pela rede (Wake-on-LAN)
+
+    /// <summary>Botão "Ligar": a máquina não responde e o serviço já informou o MAC da placa de rede dela.</summary>
+    public bool CanWake => !IsConnected && Machine.WakeMacs.Count > 0;
+
+    private string? _wakeText;
+    /// <summary>Resultado do último "Ligar" (some quando a máquina conecta).</summary>
+    public string? WakeText { get => _wakeText; private set => Set(ref _wakeText, value); }
+
+    private RelayCommand? _wakeCommand;
+    public RelayCommand WakeCommand => _wakeCommand ??= new RelayCommand(() => _ = WakeAsync());
+
+    /// <summary>Quanto esperar o PC responder depois do sinal antes de dizer que não deu certo.</summary>
+    private static readonly TimeSpan WakeWait = TimeSpan.FromMinutes(3);
+    private DateTimeOffset? _wakeSent;
+
+    /// <summary>Sinal enviado e o PC ainda não respondeu: o botão vira "Ligando… 0:42" e fica desativado.</summary>
+    public bool IsWaking => _wakeSent is not null;
+    public bool CanPressWake => !IsWaking;
+    public string WakeButtonText => _wakeSent is { } sent
+        ? L.T("Ligando… {0}", (DateTimeOffset.Now - sent).ToString(@"m\:ss"))
+        : WakeFailed ? L.T("Tentar de novo") : L.T("Ligar este PC");
+    private bool WakeFailed { get; set; }
+
+    private async Task WakeAsync()
+    {
+        if (IsWaking) return;
+        try
+        {
+            var sent = await HwMon.Client.WakeOnLan.SendAsync(Machine.WakeMacs, Machine.KnownAddresses);
+            if (sent == 0)
+            {
+                WakeText = L.T("Não foi possível enviar o sinal: nenhuma rede disponível neste PC.");
+                return;
+            }
+            _wakeSent = DateTimeOffset.Now;
+            WakeFailed = false;
+            WakeText = L.T("Sinal enviado às {0}. Aguardando o PC ligar e o Corewise responder (costuma levar de 30 s a 2 min).", DateTime.Now.ToString("HH:mm", L.Culture));
+        }
+        catch (Exception ex)
+        {
+            WakeText = L.T("Não foi possível enviar o sinal: {0}", ex.Message);
+        }
+        RaiseWake();
+    }
+
+    /// <summary>A cada segundo (relógio da tela principal): conta o tempo e desiste depois de 3 min.</summary>
+    private void TickWake()
+    {
+        if (_wakeSent is not { } sent) return;
+        if (IsConnected)
+        {
+            WakeText = null;
+            _wakeSent = null;
+        }
+        else if (DateTimeOffset.Now - sent > WakeWait)
+        {
+            _wakeSent = null;
+            WakeFailed = true;
+            WakeText = L.T("O PC não respondeu em 3 minutos. Confira se ele está no cabo de rede e se o Wake on LAN está ativado no BIOS e na placa de rede (Gerenciador de Dispositivos › placa de rede › Avançado › Wake on Magic Packet).");
+        }
+        RaiseWake();
+    }
+
+    private void RaiseWake()
+    {
+        Raise(nameof(IsWaking));
+        Raise(nameof(CanPressWake));
+        Raise(nameof(WakeButtonText));
+    }
     public bool IsConnected => _status == ConnectionStatus.Connected;
     public string StatusText { get => _statusText; private set => Set(ref _statusText, value); }
     public string AgeText { get => _ageText; private set => Set(ref _ageText, value); }
@@ -260,6 +331,13 @@ public sealed class MachineViewModel : ObservableObject
     private void Apply(ConnectionState state)
     {
         Status = state.Status;
+        if (state.Status == ConnectionStatus.Connected && (WakeText is not null || _wakeSent is not null || WakeFailed))
+        {
+            WakeText = null;
+            _wakeSent = null;
+            WakeFailed = false;
+            RaiseWake();
+        }
         StatusText = state.Status switch
         {
             ConnectionStatus.Connected => L.T("conectado"),
@@ -267,6 +345,16 @@ public sealed class MachineViewModel : ObservableObject
             ConnectionStatus.Disconnected => L.T("desconectado desde {0}", state.Since.ToString("HH:mm:ss", Format.Pt)),
             _ => state.Message ?? L.T("falha"),
         };
+
+        // Guarda os MACs (vêm com a descrição da máquina) para poder ligá-la quando estiver desligada.
+        if (state.Descriptor is { WakeMacs.Count: > 0 } wd && !wd.WakeMacs.SequenceEqual(Machine.WakeMacs))
+        {
+            Machine.WakeMacs = wd.WakeMacs.ToList();
+            var id = MachineId;
+            var macs = Machine.WakeMacs;
+            _ = Task.Run(() => { try { _store.RememberWakeMacs(id, macs); } catch (Exception) { /* tenta na próxima conexão */ } });
+            Raise(nameof(CanWake));
+        }
 
         if (state.Descriptor is { } d && (d.Version != _descriptorVersion || _descriptor?.MachineId != d.MachineId))
         {
@@ -290,7 +378,9 @@ public sealed class MachineViewModel : ObservableObject
                 q.Enqueue(x);
                 while (q.Count > HistoryLength) q.Dequeue();
             }
-            LastUpdate = s.Time;
+            // Hora de chegada aqui, não a do relógio da outra máquina: um relógio alguns segundos atrasado (o NAS) deixava
+            // "atualizado há 3 s" piscando o tempo todo, com a conexão ao vivo.
+            LastUpdate = DateTimeOffset.Now;
         }
 
         Refresh();
@@ -298,7 +388,11 @@ public sealed class MachineViewModel : ObservableObject
         if (Status == ConnectionStatus.Connected && Cards.Count > 0) _ = RefreshStatsAsync();
     }
 
-    public void RefreshAge() => AgeText = Status == ConnectionStatus.Connected && LastUpdate is { } t ? L.T("atualizado {0}", Format.Ago(t)) : StatusText;
+    public void RefreshAge()
+    {
+        TickWake();
+        AgeText = Status == ConnectionStatus.Connected && LastUpdate is { } t ? L.T("atualizado {0}", Format.Ago(t)) : StatusText;
+    }
 
     // ------------------------------------------------------------------ valores
 

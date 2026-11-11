@@ -745,7 +745,6 @@
   "Inteiros": "Integers",
   "todos: {0}": "all: {0}",
   "workstation ≈ 1000": "Ryzen 9 9950X ≈ 1000",
-  "Durante o teste, a CPU: {0}.": "During the test, the CPU: {0}.",
   "{0} pentes": "{0} modules",
   "no {0} · {1} · {2} FPS médio": "on {0} · {1} · {2} FPS average",
 
@@ -762,5 +761,24 @@
   "A placa de vídeo parou de responder durante o teste.": "The graphics card stopped responding during the test.",
   "A placa de vídeo não terminou a última carga a tempo.": "The graphics card did not finish its last workload in time.",
   "Muitas tentativas de pareamento ao mesmo tempo. Tente de novo em alguns segundos.": "Too many pairing attempts at once. Try again in a few seconds.",
-  "Outro teste de rede está em andamento nesta máquina. Tente de novo em alguns segundos.": "Another network test is running on this machine. Try again in a few seconds."
+  "Outro teste de rede está em andamento nesta máquina. Tente de novo em alguns segundos.": "Another network test is running on this machine. Try again in a few seconds.",
+
+  // 0.13.3: ligar pela rede (Wake-on-LAN)
+  "Ligar este PC": "Turn on this PC",
+  "Envia o sinal Wake-on-LAN pela rede. Precisa de cabo de rede e do Wake on LAN ativado no BIOS e na placa de rede.": "Sends a Wake-on-LAN signal over the network. Needs a wired connection and Wake on LAN enabled in the BIOS and on the network adapter.",
+  "Sinal para ligar enviado às {0}. O PC costuma responder em 30 s a 2 min.": "Wake signal sent at {0}. The PC usually responds within 30 s to 2 min.",
+  "Não foi possível enviar o sinal: nenhuma rede disponível neste PC.": "Could not send the signal: no network available on this PC.",
+  "Não foi possível enviar o sinal: {0}": "Could not send the signal: {0}",
+  "Ligando… {0}": "Turning on… {0}",
+  "Tentar de novo": "Try again",
+  "leitura": "read",
+  "escrita": "write",
+  "Estressando": "Stressing",
+  "faltam {0}": "{0} left",
+  "Estressando · faltam {0}:{1} · {2} erros": "Stressing · {0}:{1} left · {2} errors",
+  "{0} erros": "{0} errors",
+  "CPU chegou a {0}.": "CPU reached {0}.",
+  "CPU chegou a {0} (no limite do processador; Ryzen e Intel recentes trabalham assim e reduzem o clock para não passar).": "CPU reached {0} (at the processor limit; recent Ryzen and Intel chips run like this and lower the clock to stay below it).",
+  "Sinal enviado às {0}. Aguardando o PC ligar e o Corewise responder (costuma levar de 30 s a 2 min).": "Signal sent at {0}. Waiting for the PC to start and Corewise to respond (usually 30 s to 2 min).",
+  "O PC não respondeu em 3 minutos. Confira se ele está no cabo de rede e se o Wake on LAN está ativado no BIOS e na placa de rede (Gerenciador de Dispositivos › placa de rede › Avançado › Wake on Magic Packet).": "The PC did not respond within 3 minutes. Check that it is on a wired connection and that Wake on LAN is enabled in the BIOS and on the network adapter (Device Manager › network adapter › Advanced › Wake on Magic Packet)."
 }

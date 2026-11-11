@@ -262,6 +262,10 @@ public sealed class TelemetryEngine : IDisposable
                 AgentVersion = AgentVersion,
                 Version = _descriptorVersion,
                 Components = _components.Values.OrderBy(c => c.Order).ToList(),
+                WakeMacs = _network.Adapters
+                    .Where(a => a.Physical != false && a.Status == "Up" && a.Mac is { Length: 12 } && a.Type is "Ethernet" or "GigabitEthernet" or "FastEthernetT" or "FastEthernetFx" or "Wireless80211")
+                    .OrderBy(a => a.Type == "Wireless80211" ? 1 : 0)
+                    .Select(a => a.Mac!).Distinct().ToList(),
             };
         }
     }
