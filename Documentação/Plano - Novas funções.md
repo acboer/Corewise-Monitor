@@ -267,12 +267,46 @@ quando um disco esquentar, o espaço acabar, a saúde mudar, uma bateria ficar b
 | Etapa | Conteúdo |
 |---|---|
 | **12** | ✅ **Corewise** em tudo o que aparece (0.12.0) e ✅ **interface em inglês** (0.13.0: Configurações › Idioma, padrão = idioma do Windows). |
-| **12** | ✅ **Corewise** em tudo o que aparece (0.12.0) e ✅ **interface em inglês** (0.13.0: Configurações › Idioma, padrão = idioma do Windows). |
+| **13** | ✅ **Instalador e pareamento** (0.12.0–0.13.3): pareamento por aceite, atalhos, widget por PC, Wake-on-LAN, periféricos Bluetooth/Xbox, correções da auditoria, testes automáticos. ⏳ Falta: atualização automática. Assinatura: SignPath recusou por enquanto (11/2026); tentar de novo quando o projeto tiver histórico público. |
 | **14** | **Site**: página estática (download, recursos, capturas, doação, "o que o serviço faz e por que precisa de administrador", link do VirusTotal) e código no GitHub com licença definida (respeitando MPL 2.0 do LibreHardwareMonitor e a licença do PawnIO). |
 | **15** | **Ranking de benchmarks**: envio opcional pelo painel (pontuação, modelos de CPU/GPU/placa/RAM/disco, versão do teste, sensores durante o teste; sem nome do PC, série ou IP), API pequena (Cloudflare Workers + D1 ou Supabase), página de ranking com **mediana por modelo**, filtro de valores impossíveis, limite de envios, "verificado" quando os sensores batem, versão do teste congelada (CPU "v1" = workstation 1000). |
 | depois | FPS de jogos da comunidade ("vai rodar no meu PC?"), exige saber resolução e qualidade; alertas; botão "exportar diagnóstico". |
 
 Lançamento no Reddit só depois do ranking ter alguns resultados.
+
+## 8. Em avaliação: agente Linux em Docker (ideia de 13/11/2026)
+
+**Situação:** plano futuro, a avaliar depois do lançamento no Reddit. Só vale se houver pedido (o post do r/homelab
+pergunta "Linux agent?"; contar as respostas).
+
+**O que seria:** um "Corewise Agent" para servidores e NAS **Linux** (Unraid, TrueNAS SCALE, Proxmox, Ubuntu),
+distribuído como contêiner Docker, que fala o **mesmo protocolo** do serviço do Windows (HTTPS, pareamento por
+aceite/código, token). O painel do Windows mostra a máquina Linux como qualquer outra, sem mudar o painel.
+
+**O que não vai para o Docker:** o painel e o widget (aplicativos de janela WPF) e o serviço do Windows (sensores
+por driver de kernel PawnIO, WMI, ETW para FPS, HID; contêiner isola justamente o hardware).
+
+**Coleta no Linux (o que muda):**
+- Temperaturas, ventoinhas e tensões: `/sys/class/hwmon` (o mesmo que o `lm-sensors` lê).
+- CPU, memória, rede, volumes: `/proc` e `/sys`.
+- Discos: SMART com `smartctl` (smartmontools) dentro da imagem; sem acordar HDDs em repouso (`-n standby`).
+- GPU: `nvidia-smi` (NVIDIA); AMD/Intel por `/sys/class/drm` quando disponível.
+- Sem overlay de FPS nem periféricos (não fazem sentido num servidor).
+- O contêiner precisa de acesso a `/sys`, `/dev` dos discos e, para SMART, privilégio (`--privileged` ou
+  `--device` + `CAP_SYS_RAWIO`); documentar as duas formas.
+
+**Reaproveitamento:** .NET roda em Linux; API, pareamento, certificado, histórico (SQLite), benchmarks de rede e
+de disco são quase todos portáveis. Separar a camada de coleta (interfaces) da parte Windows antes de começar.
+
+**Entregas:**
+1. Separar coletores Windows atrás de interfaces (sem mudar comportamento; testes atuais passando).
+2. Coletores Linux + execução como serviço comum (systemd) para testar fora do Docker.
+3. Imagem Docker (multi-arch amd64/arm64), `docker-compose.yml` de exemplo, modelos para Unraid e TrueNAS.
+4. Pareamento sem painel local: código de pareamento no log do contêiner e por comando (`docker exec … parear`).
+5. Testar em 2–3 distribuições e num NAS real; documentação.
+
+**Esforço:** grande (algumas semanas). **Combina com:** painel web num segundo contêiner (ver o painel pelo celular
+ou de outro sistema) — juntos formariam uma "versão homelab".
 
 ## Em aberto
 - Benchmark de internet: quer, mesmo usando um servidor externo?
