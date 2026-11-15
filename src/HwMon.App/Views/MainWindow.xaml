@@ -1018,11 +1018,23 @@
                                                Foreground="{Binding Status, Converter={StaticResource StatusToBrush}}" VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding AgeText}" Style="{StaticResource Caption}" FontSize="12" Margin="6,0,0,0" VerticalAlignment="Center"/>
                             </StackPanel>
+                            <!-- Desligar/reiniciar/suspender pedido: quando acontece, com Cancelar; ou o erro do pedido. -->
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0" Visibility="{Binding PowerText, Converter={StaticResource NullToVisibility}}">
+                                <controls:Icon Kind="metric-power" Width="14" Height="14" VerticalAlignment="Center" Foreground="{DynamicResource Status.CautionText}"/>
+                                <TextBlock Text="{Binding PowerText}" FontSize="12" Margin="6,0,10,0" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="560"
+                                           Foreground="{DynamicResource Status.CautionText}"/>
+                                <Button Content="Cancelar" Style="{StaticResource FlatButton}" Padding="10,3" Command="{Binding CancelPowerCommand}"
+                                        Visibility="{Binding IsPowerPending, Converter={StaticResource BoolToVisibility}}"/>
+                            </StackPanel>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
                             <ToggleButton Content="Personalizar" Tag="action-customize" Style="{StaticResource FlatToggle}" Margin="0,0,8,0"
                                           IsChecked="{Binding DataContext.IsCustomizing, RelativeSource={RelativeSource AncestorType=Window}}"
                                           Visibility="{Binding PanelVisible, Converter={StaticResource BoolToVisibility}}"/>
+                            <!-- Energia: desligar, reiniciar ou suspender esta máquina (menu ao clicar). -->
+                            <Button Content="Energia" Tag="metric-power" Style="{StaticResource FlatButton}" Margin="0,0,8,0" Click="Power_Click"
+                                    ToolTip="Desligar, reiniciar ou suspender esta máquina"
+                                    Visibility="{Binding IsConnected, Converter={StaticResource BoolToVisibility}}"/>
                             <Button Content="Remover" Tag="action-remove" Style="{StaticResource FlatButton}" Click="RemoveMachine_Click"/>
                         </StackPanel>
                     </Grid>

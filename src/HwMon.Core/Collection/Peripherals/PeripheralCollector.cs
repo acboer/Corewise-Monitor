@@ -265,7 +265,9 @@ public sealed class PeripheralCollector(List<string> problems, string? statePath
             }
             if (b?.Percent is { } pct)
             {
-                var note = b.State + (b.VoltageMv is { } mv ? $" · {mv / 1000.0:0.00} V (estimado pela tensão)" : "");
+                var note = b.State + (b.VoltageMv is { } mv
+                    ? b.Feature == "ghub" ? $" · {mv / 1000.0:0.000} V (curva do G HUB)" : $" · {mv / 1000.0:0.00} V (estimado pela tensão)"
+                    : "");
                 yield return Reading.Ok("periph", d.Key, "battery", pct, "%", "hidpp", d.Coarse ? note + " · nível aproximado" : note);
                 if (d.Coarse)
                 {

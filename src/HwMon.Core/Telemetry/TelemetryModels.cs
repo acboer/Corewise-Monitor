@@ -147,3 +147,19 @@ public static class MetricPolicy
     public static int SourceRank(string component, string metric, string source)
         => PreferLhm.Contains($"{component}.{metric}") ? (source == "lhm" ? 0 : 1) : (source == "lhm" ? 1 : 0);
 }
+
+/// <summary>Desligar, reiniciar ou suspender pelo painel (coletor 0.13.4+).</summary>
+public sealed class PowerRequest
+{
+    /// <summary>"shutdown", "restart", "sleep" ou "cancel".</summary>
+    public string Action { get; set; } = "";
+    /// <summary>Espera antes de agir (0 = agora; até 600 s). Desligar/reiniciar com espera mostram o aviso do Windows no PC.</summary>
+    public int DelaySeconds { get; set; }
+}
+
+public sealed class PowerResponse
+{
+    public string Action { get; set; } = "";
+    /// <summary>Quando acontece (nulo em "cancel").</summary>
+    public DateTimeOffset? At { get; set; }
+}

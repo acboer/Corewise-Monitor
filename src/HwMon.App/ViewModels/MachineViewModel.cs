@@ -217,6 +217,93 @@ public sealed class MachineViewModel : ObservableObject
 
     public ConnectionStatus Status { get => _status; private set { if (Set(ref _status, value)) { Raise(nameof(IsConnected)); Raise(nameof(CanWake)); } } }
 
+    // ------------------------------------------------------------------ desligar, reiniciar, suspender (Energia)
+
+    private DateTimeOffset? _powerAt;
+    private string? _powerAction;
+    private string? _powerText;
+
+    /// <summary>Linha abaixo do nome: "Desliga às 14:32 (em 0:42)", ou o erro do pedido.</summary>
+    public string? PowerText { get => _powerText; private set => Set(ref _powerText, value); }
+    /// <summary>Há um desligamento/reinício/suspensão agendado (mostra Cancelar).</summary>
+    public bool IsPowerPending => _powerAt is not null;
+
+    private RelayCommand? _cancelPowerCommand;
+    public RelayCommand CancelPowerCommand => _cancelPowerCommand ??= new RelayCommand(() => _ = CancelPowerAsync());
+
+    /// <summary>Este PC (o serviço local), para o aviso de "salve o que estiver aberto".</summary>
+    public bool IsThisPc => string.Equals(Descriptor?.HostName, Environment.MachineName, StringComparison.OrdinalIgnoreCase)
+                            || Machine.Host is "localhost" or "127.0.0.1";
+
+    /// <summary>Pede ao serviço da máquina: "shutdown", "restart" ou "sleep", agora ou com espera.</summary>
+    public async Task PowerAsync(string action, int delaySeconds)
+    {
+        try
+        {
+            using var client = CollectorClient.For(Machine);
+            var result = await client.PowerAsync(action, delaySeconds);
+            _powerAction = action;
+            _powerAt = result.At ?? DateTimeOffset.Now.AddSeconds(delaySeconds);
+            TickPower();
+        }
+        catch (CollectorException ex) when (ex.Status == System.Net.HttpStatusCode.NotFound)
+        {
+            PowerText = L.T("Atualize o Corewise nessa máquina para usar o controle de energia (precisa da versão 0.13.4 ou mais nova).");
+        }
+        catch (Exception ex) when (ex is CollectorException or System.Net.Http.HttpRequestException or TaskCanceledException)
+        {
+            PowerText = L.T("Não foi possível: {0}", ex.Message);
+        }
+        Raise(nameof(IsPowerPending));
+    }
+
+    private async Task CancelPowerAsync()
+    {
+        try
+        {
+            using var client = CollectorClient.For(Machine);
+            await client.PowerAsync("cancel", 0);
+            _powerAt = null;
+            _powerAction = null;
+            PowerText = L.T("Cancelado.");
+        }
+        catch (Exception ex) when (ex is CollectorException or System.Net.Http.HttpRequestException or TaskCanceledException)
+        {
+            PowerText = L.T("Não foi possível cancelar: {0}", ex.Message);
+        }
+        Raise(nameof(IsPowerPending));
+    }
+
+    /// <summary>A cada segundo: conta o tempo; depois da hora marcada, mostra o resultado e some quando a máquina volta.</summary>
+    private void TickPower()
+    {
+        if (_powerAt is not { } at || _powerAction is not { } action) return;
+        var left = at - DateTimeOffset.Now;
+        var when = at.ToLocalTime().ToString("HH:mm", L.Culture);
+        if (left > TimeSpan.Zero)
+        {
+            var count = left.ToString(@"m\:ss");
+            PowerText = action switch
+            {
+                "shutdown" => L.T("Desliga às {0} (em {1})", when, count),
+                "restart" => L.T("Reinicia às {0} (em {1})", when, count),
+                _ => L.T("Suspende às {0} (em {1})", when, count),
+            };
+        }
+        else
+        {
+            // Hora passou: o pedido saiu da nossa mão (sem Cancelar). Some quando a máquina reconectar depois disso.
+            _powerAt = null;
+            PowerText = action switch
+            {
+                "shutdown" => L.T("Desligada às {0}.", when),
+                "restart" => L.T("Reiniciando desde as {0}…", when),
+                _ => L.T("Suspensa às {0}.", when),
+            };
+            Raise(nameof(IsPowerPending));
+        }
+    }
+
     // ------------------------------------------------------------------ ligar pela rede (Wake-on-LAN)
 
     /// <summary>Botão "Ligar": a máquina não responde e o serviço já informou o MAC da placa de rede dela.</summary>
@@ -330,7 +417,14 @@ public sealed class MachineViewModel : ObservableObject
 
     private void Apply(ConnectionState state)
     {
+        // Voltou depois de reiniciar/suspender (ou ligou de novo depois de desligar): a linha de Energia some.
+        var reconnected = Status != ConnectionStatus.Connected && state.Status == ConnectionStatus.Connected;
         Status = state.Status;
+        if (reconnected && _powerAt is null && _powerAction is not null)
+        {
+            _powerAction = null;
+            PowerText = null;
+        }
         if (state.Status == ConnectionStatus.Connected && (WakeText is not null || _wakeSent is not null || WakeFailed))
         {
             WakeText = null;
@@ -391,6 +485,7 @@ public sealed class MachineViewModel : ObservableObject
     public void RefreshAge()
     {
         TickWake();
+        TickPower();
         AgeText = Status == ConnectionStatus.Connected && LastUpdate is { } t ? L.T("atualizado {0}", Format.Ago(t)) : StatusText;
     }
 

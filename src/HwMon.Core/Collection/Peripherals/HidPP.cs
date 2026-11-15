@@ -207,6 +207,9 @@ public sealed class HidPP : IDisposable
                 var flags = r[2];
                 if (feature == FeatAdcMeasurement && (flags & 0x01) == 0) return new BatteryStatus(null, "desligado", null, "adc");
                 var charging = feature == FeatAdcMeasurement ? (flags & 0x02) != 0 : (flags & 0x80) != 0;
+                // Headset com dongle próprio (o product id é o do aparelho): usa a curva do G HUB, se instalado neste PC.
+                if (feature == FeatAdcMeasurement && GHubBatteryCurve.For(Info.ProductId)?.Percent(mv, charging) is { } ghub)
+                    return new BatteryStatus(ghub, charging ? "carregando" : "na bateria", mv, "ghub");
                 var pct = feature == FeatAdcMeasurement ? FromHeadsetVoltage(mv) : FromVoltage(mv);
                 return new BatteryStatus(pct, charging ? "carregando" : "na bateria", mv, feature == FeatAdcMeasurement ? "adc" : "voltage");
             }

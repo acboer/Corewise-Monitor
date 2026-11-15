@@ -358,6 +358,14 @@ public sealed class CollectorClient : IDisposable
         return await Read<PairAskResponse>(response, timeout.Token);
     }
 
+    /// <summary>Desligar ("shutdown"), reiniciar ("restart"), suspender ("sleep") ou cancelar ("cancel") a máquina (coletor 0.13.4+).</summary>
+    public async Task<PowerResponse> PowerAsync(string action, int delaySeconds, CancellationToken cancel = default)
+    {
+        using var timeout = Timeout(cancel, TimeSpan.FromSeconds(20));
+        var response = await Send(() => _http.PostAsJsonAsync("v1/power", new PowerRequest { Action = action, DelaySeconds = delaySeconds }, Json, timeout.Token));
+        return await Read<PowerResponse>(response, timeout.Token);
+    }
+
     public Task<PairAskStatus> PairStatusAsync(string id, CancellationToken cancel = default)
         => GetAsync<PairAskStatus>($"v1/pair/ask/{Uri.EscapeDataString(id)}", cancel);
 

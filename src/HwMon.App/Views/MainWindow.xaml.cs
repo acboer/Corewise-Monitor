@@ -130,6 +130,24 @@ public partial class MainWindow : Window
             _vm.Selected = _vm.AddMachine(machine);
     }
 
+    /// <summary>Energia: menu com Desligar, Reiniciar e Suspender; confirma (agora ou em 1 min) e pede ao serviço.</summary>
+    private void Power_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button || _vm.Selected is not MachineViewModel m) return;
+        var menu = new ContextMenu { PlacementTarget = button, Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom };
+        foreach (var (action, text) in new[] { ("shutdown", L.T("Desligar")), ("restart", L.T("Reiniciar")), ("sleep", L.T("Suspender")) })
+        {
+            var item = new MenuItem { Header = text };
+            item.Click += async (_, _) =>
+            {
+                if (PowerConfirmWindow.Ask(this, action, m.Name, m.IsThisPc) is { } delay) await m.PowerAsync(action, delay);
+            };
+            menu.Items.Add(item);
+        }
+        button.ContextMenu = menu;
+        menu.IsOpen = true;
+    }
+
     private void RemoveMachine_Click(object sender, RoutedEventArgs e)
     {
         if (_vm.Selected is not MachineViewModel m) return;

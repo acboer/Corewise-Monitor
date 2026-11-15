@@ -20,6 +20,11 @@ public sealed class CollectorConfig
     public bool PeripheralsEnabled { get; set; } = true;
     /// <summary>Grava as sessões de jogo (FPS e sensores) em jogos.db.</summary>
     public bool GamesEnabled { get; set; } = true;
+    /// <summary>
+    /// Painéis pareados podem desligar, reiniciar ou suspender esta máquina (Energia, no painel). Falso desliga o recurso
+    /// aqui; o pedido é recusado e o painel avisa.
+    /// </summary>
+    public bool RemotePower { get; set; } = true;
 }
 
 /// <summary>

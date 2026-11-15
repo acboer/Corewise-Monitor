@@ -341,3 +341,67 @@ public class ServiceTextTranslationTests
         Assert.Empty(keys.GroupBy(k => k, StringComparer.Ordinal).Where(g => g.Count() > 1).Select(g => g.Key));
     }
 }
+
+// Curva de bateria do G HUB (headset): descarga pela energia gasta e carga pela tabela própria.
+public class GHubBatteryCurveTests
+{
+    private const string Sample = """
+        <?xml version="1.0" encoding="utf-8"?>
+        <powermodel vid="0x46d" pid="0x0afe">
+          <battery>
+            <discharge format="default"><![CDATA[
+        10,3.900,0
+        20,3.800,50
+        30,3.700,100
+        ]]></discharge>
+            <charging format="default"><![CDATA[
+        3.700,1
+        3.990,10
+        3.995,60
+        3.998,99.99
+        ]]></charging>
+          </battery>
+        </powermodel>
+        """;
+
+    [Theory]
+    [InlineData(3950, false, 100)]
+    [InlineData(3900, false, 100)]
+    [InlineData(3850, false, 75)]
+    [InlineData(3800, false, 50)]
+    [InlineData(3700, false, 0)]
+    [InlineData(3600, false, 0)]
+    [InlineData(3990, true, 10)]
+    [InlineData(3995, true, 60)]
+    [InlineData(3998, true, 100)]
+    [InlineData(4010, true, 100)]
+    public void Discharge_and_charging(int mv, bool charging, double expected)
+        => Assert.Equal(expected, Parse().Percent(mv, charging));
+
+    private static HwMon.Core.Collection.Peripherals.GHubBatteryCurve Parse()
+        => HwMon.Core.Collection.Peripherals.GHubBatteryCurve.Parse(Sample) ?? throw new InvalidOperationException("curva não lida");
+
+    [Fact]
+    public void Invalid_file_is_null()
+        => Assert.Null(HwMon.Core.Collection.Peripherals.GHubBatteryCurve.Parse("<powermodel><battery/></powermodel>"));
+
+    [Fact]
+    public void Real_G733_curve_when_GHub_is_installed()
+    {
+        // Só neste PC de desenvolvimento (G HUB com o G733); em outros, não há o que conferir.
+        if (HwMon.Core.Collection.Peripherals.GHubBatteryCurve.For(0x0AFE) is not { } curve) return;
+        Assert.Equal(100, curve.Percent(3998, charging: true));
+        Assert.InRange(curve.Percent(3800, charging: false) ?? -1, 65, 80);
+    }
+}
+
+// Energia: ação desconhecida é recusada antes de chamar o Windows.
+public class PowerControlTests
+{
+    [Fact]
+    public void Unknown_action_is_rejected()
+    {
+        var power = new PowerControl(Microsoft.Extensions.Logging.Abstractions.NullLogger<PowerControl>.Instance);
+        Assert.Throws<ArgumentException>(() => power.Run(new PowerRequest { Action = "format-c" }, "teste"));
+    }
+}

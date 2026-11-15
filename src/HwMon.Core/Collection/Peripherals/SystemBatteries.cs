@@ -99,6 +99,11 @@ public static class SystemBatteries
     private static readonly DevPropKey FriendlyNameKey = new(new Guid("A45C254E-DF1C-4EFD-8020-67D146A850E0"), 14);
     private static readonly DevPropKey DescriptionKey = new(new Guid("A45C254E-DF1C-4EFD-8020-67D146A850E0"), 2);
     private static readonly DevPropKey InstanceIdKey = new(new Guid("78C34FC8-104A-4ACA-9EA4-524D52996E57"), 256);
+    /// <summary>
+    /// Conectado agora (Bluetooth LE). O Windows mantém o aparelho pareado como "presente" depois de desligado, com a última
+    /// bateria que recebeu: sem esta conferência o controle Xbox aparecia com 76 % dias depois de desconectado.
+    /// </summary>
+    private static readonly DevPropKey ConnectedKey = new(new Guid("83DA6326-97A6-4088-9453-A1923F573B29"), 15);
 
     /// <summary>Aparelhos presentes com a propriedade de bateria do Bluetooth (0–100 %).</summary>
     private static List<(string Instance, string Name, double Level)> BluetoothBatteries()
@@ -116,6 +121,10 @@ public static class SystemBatteries
                 if (!SetupDiGetDeviceProperty(set, ref data, ref key, out var type, buffer, (uint)buffer.Length, out var size, 0)
                     || type != 0x3 || size < 1) continue; // DEVPROP_TYPE_BYTE
                 var level = buffer[0];
+                // Desconectado (propriedade existe e diz falso): fica de fora; volta sozinho quando reconectar.
+                var connectedKey = ConnectedKey;
+                if (SetupDiGetDeviceProperty(set, ref data, ref connectedKey, out var connectedType, buffer, (uint)buffer.Length, out _, 0)
+                    && connectedType == 0x11 && buffer[0] == 0) continue; // DEVPROP_TYPE_BOOLEAN
                 if (level > 100) continue;
                 var instance = String(set, ref data, InstanceIdKey, buffer);
                 var name = String(set, ref data, FriendlyNameKey, buffer) ?? String(set, ref data, DescriptionKey, buffer);

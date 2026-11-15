@@ -98,6 +98,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
     builder.Services.AddSingleton(new ClientRegistry(store.ClientsPath));
     builder.Services.AddSingleton(new PairingCodes(store.PairingPath));
     builder.Services.AddSingleton<PairRequests>();
+    builder.Services.AddSingleton<PowerControl>();
 
     var app = builder.Build();
     var log = app.Logger;
@@ -246,6 +247,28 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
         }));
 
     api.MapGet("/machine", (EngineHost host) => Results.Ok(host.Engine!.Descriptor()));
+
+    // Desligar, reiniciar ou suspender esta máquina pelo painel (Energia). Recusado se desativado no config.json.
+    api.MapPost("/power", (PowerRequest? request, PowerControl power, ClientRegistry clients, HttpContext http) =>
+    {
+        if (!config.RemotePower)
+            return Results.Problem(L.T("O controle de energia pelo painel está desativado nesta máquina (RemotePower no config.json do serviço)."), statusCode: 403);
+        if (request is null || string.IsNullOrWhiteSpace(request.Action)) return Results.BadRequest();
+        var token = http.Request.Headers.Authorization.ToString()["Bearer ".Length..].Trim();
+        var who = clients.Validate(token)?.Name ?? "outro PC";
+        try
+        {
+            return Results.Ok(power.Run(request, who));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.Problem(L.T(ex.Message), statusCode: 400);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Results.Problem(L.T(ex.Message), statusCode: 409);
+        }
+    });
     api.MapGet("/snapshot", (EngineHost host) => Results.Ok(host.Engine!.Snapshot()));
     api.MapGet("/system", async (EngineHost host, bool? refresh, CancellationToken cancel) => Results.Ok(await host.SummaryAsync(refresh == true, cancel)));
 
