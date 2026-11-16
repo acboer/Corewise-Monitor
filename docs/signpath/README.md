@@ -5,8 +5,8 @@ Slugs must match the ones in `.github/workflows/release.yml`:
 
 | Slug | File | What it signs |
 |---|---|---|
-| `executaveis` | [executaveis.xml](executaveis.xml) | `Corewise.exe`, `Corewise.Service.exe` before they go into the installer |
-| `instalador` | [instalador.xml](instalador.xml) | `CorewiseSetup-<version>.exe` |
+| `executaveis` | [executaveis.xml](executaveis.xml) | `Nodekeeper.exe`, `Nodekeeper.Service.exe` before they go into the installer |
+| `instalador` | [instalador.xml](instalador.xml) | `NodekeeperSetup-<version>.exe` |
 
 Repository settings used by the workflow (Settings > Secrets and variables > Actions):
 

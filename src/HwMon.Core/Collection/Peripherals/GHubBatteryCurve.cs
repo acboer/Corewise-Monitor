@@ -5,7 +5,7 @@ namespace HwMon.Core.Collection.Peripherals;
 
 /// <summary>
 /// Curva de bateria do próprio G HUB para um aparelho Logitech, lida da instalação do G HUB neste PC
-/// (<c>%ProgramData%\LGHUB\depots\…\&lt;nome&gt;_&lt;pid&gt;\battery_&lt;pid&gt;.xml</c>). Nada é copiado para o Corewise:
+/// (<c>%ProgramData%\LGHUB\depots\…\&lt;nome&gt;_&lt;pid&gt;\battery_&lt;pid&gt;.xml</c>). Nada é copiado para o Nodekeeper:
 /// sem o G HUB instalado, fica a fórmula genérica.
 /// <list type="bullet">
 /// <item>Descarga: tensão sob carga × energia já gasta (mWh); % restante = 1 − gasto ÷ total.</item>

@@ -18,7 +18,7 @@ namespace HwMon.App;
 /// </summary>
 public partial class App : Application
 {
-    private const string InstanceName = @"Local\Corewise.App";
+    private const string InstanceName = @"Local\Nodekeeper.App";
     private Mutex? _instance;
     private EventWaitHandle? _showSignal;
     private MainViewModel _vm = null!;
@@ -77,7 +77,7 @@ public partial class App : Application
         DispatcherUnhandledException += (_, args) =>
         {
             LogError(args.Exception);
-            MessageBox.Show(L.T("Ocorreu um erro inesperado:\n\n{0}\n\nDetalhes em %AppData%\\Corewise\\erro.log", args.Exception.Message), "Corewise",
+            MessageBox.Show(L.T("Ocorreu um erro inesperado:\n\n{0}\n\nDetalhes em %AppData%\\Nodekeeper\\erro.log", args.Exception.Message), "Nodekeeper",
                 MessageBoxButton.OK, MessageBoxImage.Warning);
             args.Handled = true;
         };
@@ -277,7 +277,7 @@ public partial class App : Application
         {
             startup.TrayHintShown = true;
             _vm.Settings.SaveSoon();
-            _tray?.ShowHint(L.T("Corewise continua na bandeja"), L.T("Clique no ícone perto do relógio para abrir o painel. Para encerrar, use Sair no menu do ícone."));
+            _tray?.ShowHint(L.T("Nodekeeper continua na bandeja"), L.T("Clique no ícone perto do relógio para abrir o painel. Para encerrar, use Sair no menu do ícone."));
         }
     }
 

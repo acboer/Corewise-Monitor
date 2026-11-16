@@ -8,7 +8,7 @@
     <StackPanel Margin="24,20,24,20">
         <TextBlock Text="Adicionar máquina" Style="{StaticResource Text.DialogTitle}"/>
         <TextBlock TextWrapping="Wrap" Style="{StaticResource Text.PageSubtitle}" Margin="0,6,0,18"
-                   Text="Digite o nome do outro PC (com o Corewise instalado) e clique em Procurar. Depois é só pedir acesso e clicar em Permitir lá."/>
+                   Text="Digite o nome do outro PC (com o Nodekeeper instalado) e clique em Procurar. Depois é só pedir acesso e clicar em Permitir lá."/>
 
         <TextBlock Text="Nome ou IP do PC" FontWeight="SemiBold" Margin="0,0,0,4"/>
         <Grid>
@@ -41,7 +41,7 @@
             <TextBlock Text="Nome no painel" FontWeight="SemiBold" Margin="0,0,0,4"/>
             <TextBox x:Name="NameBox" Padding="6,4" FontSize="14"/>
             <TextBlock Style="{StaticResource Caption}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"
-                       Text="Pedir acesso: aparece uma janela no outro PC; alguém lá clica em Permitir. Se lá só tem o serviço (sem o painel aberto), use o código: no outro PC, Iniciar › Corewise › Código de pareamento."/>
+                       Text="Pedir acesso: aparece uma janela no outro PC; alguém lá clica em Permitir. Se lá só tem o serviço (sem o painel aberto), use o código: no outro PC, Iniciar › Nodekeeper › Código de pareamento."/>
             <Expander x:Name="CodeExpander" Header="Tenho um código" Margin="0,8,0,0">
                 <StackPanel Margin="0,6,0,0">
                     <TextBlock Text="Código de 6 dígitos" FontWeight="SemiBold" Margin="0,0,0,4"/>

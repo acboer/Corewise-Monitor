@@ -39,7 +39,7 @@ public partial class PairWindow : Window
                 throw new CollectorException(L.T("O certificado da conexão não confere com o anunciado pelo serviço."));
             (_host, _fingerprint, _info) = (host, info.CertificateFingerprint, info);
             InfoTitle.Text = info.Role is null ? info.HostName : $"{info.HostName} · {info.Role}";
-            InfoDetail.Text = L.T("Corewise {0} respondeu em {1}:{2}.", info.AgentVersion, host, Protocol.DefaultPort);
+            InfoDetail.Text = L.T("Nodekeeper {0} respondeu em {1}:{2}.", info.AgentVersion, host, Protocol.DefaultPort);
             InfoFingerprint.Text = Fingerprint.Short(info.CertificateFingerprint);
             NameBox.Text = info.HostName;
             InfoPanel.Visibility = CodePanel.Visibility = Visibility.Visible;
@@ -48,7 +48,7 @@ public partial class PairWindow : Window
         }
         catch (Exception ex) when (ex is CollectorException or CertificateMismatchException)
         {
-            ShowMessage(ex.Message + "\n" + L.T("Confira se o Corewise está instalado nesse PC e se a rede dele está como Privada."));
+            ShowMessage(ex.Message + "\n" + L.T("Confira se o Nodekeeper está instalado nesse PC e se a rede dele está como Privada."));
         }
         finally
         {
@@ -101,7 +101,7 @@ public partial class PairWindow : Window
             }
             catch (CollectorException ex) when (ex.Status == System.Net.HttpStatusCode.NotFound)
             {
-                ShowMessage(L.T("O outro PC tem uma versão anterior do Corewise, sem pedido de acesso. Use o código: lá, Iniciar › Corewise › Código de pareamento."));
+                ShowMessage(L.T("O outro PC tem uma versão anterior do Nodekeeper, sem pedido de acesso. Use o código: lá, Iniciar › Nodekeeper › Código de pareamento."));
                 CodeExpander.IsExpanded = true;
                 return;
             }
@@ -123,12 +123,12 @@ public partial class PairWindow : Window
                         ShowMessage(L.T("O pedido foi recusado em {0}.", _info.HostName));
                         return;
                     case "expired":
-                        ShowMessage(L.T("Ninguém respondeu a tempo. O painel do Corewise precisa estar aberto (ou na bandeja) no outro PC; sem ele, use o código."));
+                        ShowMessage(L.T("Ninguém respondeu a tempo. O painel do Nodekeeper precisa estar aberto (ou na bandeja) no outro PC; sem ele, use o código."));
                         CodeExpander.IsExpanded = true;
                         return;
                 }
             }
-            ShowMessage(L.T("Ninguém respondeu a tempo. O painel do Corewise precisa estar aberto (ou na bandeja) no outro PC; sem ele, use o código."));
+            ShowMessage(L.T("Ninguém respondeu a tempo. O painel do Nodekeeper precisa estar aberto (ou na bandeja) no outro PC; sem ele, use o código."));
             CodeExpander.IsExpanded = true;
         }
         catch (OperationCanceledException)

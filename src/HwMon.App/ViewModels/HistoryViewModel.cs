@@ -148,7 +148,7 @@ public sealed class HistoryViewModel : ObservableObject
             Stats.Clear();
             Error = ex.Message.Contains("Sem histórico", StringComparison.Ordinal) || ex.Message.Contains("No history", StringComparison.Ordinal)
                 ? L.T("Ainda não há histórico desta métrica (ela começa a ser gravada quando tem uma leitura válida; HDDs parados não têm temperatura).")
-                : L.T("O serviço desta máquina não grava histórico. Atualize o Corewise nela.");
+                : L.T("O serviço desta máquina não grava histórico. Atualize o Nodekeeper nela.");
         }
         catch (Exception ex)
         {

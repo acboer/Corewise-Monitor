@@ -5,11 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Version>0.13.4</Version>
-    <AssemblyName>Corewise.Service</AssemblyName>
-    <Product>Corewise</Product>
+    <Version>0.14.0</Version>
+    <AssemblyName>Nodekeeper.Service</AssemblyName>
+    <Product>Nodekeeper</Product>
     <ApplicationIcon>..\..\icons\app.ico</ApplicationIcon>
-    <!-- O serviÃ§o nÃ£o usa appsettings: a configuraÃ§Ã£o fica em %ProgramData%\Corewise\config.json -->
+    <!-- O serviço não usa appsettings: a configuração fica em %ProgramData%\Nodekeeper\config.json -->
     <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <IsTransformWebConfigDisabled>true</IsTransformWebConfigDisabled>
     <StaticWebAssetsEnabled>false</StaticWebAssetsEnabled>

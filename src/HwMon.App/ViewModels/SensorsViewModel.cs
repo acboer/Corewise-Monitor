@@ -160,7 +160,7 @@ public sealed class SensorsViewModel : ObservableObject
     public string ToText()
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Corewise · " + L.T("sensores em {0}", Format.When(DateTimeOffset.Now)) + " · " + SinceText.ToLowerInvariant());
+        sb.AppendLine("Nodekeeper · " + L.T("sensores em {0}", Format.When(DateTimeOffset.Now)) + " · " + SinceText.ToLowerInvariant());
         foreach (var sm in Machines)
         {
             sb.AppendLine();

@@ -248,7 +248,7 @@ public sealed class MachineViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == System.Net.HttpStatusCode.NotFound)
         {
-            PowerText = L.T("Atualize o Corewise nessa máquina para usar o controle de energia (precisa da versão 0.13.4 ou mais nova).");
+            PowerText = L.T("Atualize o Nodekeeper nessa máquina para usar o controle de energia (precisa da versão 0.13.4 ou mais nova).");
         }
         catch (Exception ex) when (ex is CollectorException or System.Net.Http.HttpRequestException or TaskCanceledException)
         {
@@ -341,7 +341,7 @@ public sealed class MachineViewModel : ObservableObject
             }
             _wakeSent = DateTimeOffset.Now;
             WakeFailed = false;
-            WakeText = L.T("Sinal enviado às {0}. Aguardando o PC ligar e o Corewise responder (costuma levar de 30 s a 2 min).", DateTime.Now.ToString("HH:mm", L.Culture));
+            WakeText = L.T("Sinal enviado às {0}. Aguardando o PC ligar e o Nodekeeper responder (costuma levar de 30 s a 2 min).", DateTime.Now.ToString("HH:mm", L.Culture));
         }
         catch (Exception ex)
         {

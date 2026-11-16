@@ -26,7 +26,7 @@ public static class DiskBenchmark
 
     private const FileOptions NoBuffering = (FileOptions)0x20000000;
     /// <summary>Prefixo do arquivo de teste; cada execução usa um nome novo (nunca o de um arquivo que já existe).</summary>
-    public const string FilePrefix = "Corewise-benchmark-";
+    public const string FilePrefix = "Nodekeeper-benchmark-";
     private const FileOptions DeleteOnClose = (FileOptions)0x04000000;
 
     /// <summary>

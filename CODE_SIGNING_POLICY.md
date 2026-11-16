@@ -2,19 +2,19 @@
 
 ## Current status
 
-Corewise releases are **not code-signed yet**. Free signing for open-source projects (such as the
+Nodekeeper releases are **not code-signed yet**. Free signing for open-source projects (such as the
 [SignPath Foundation](https://signpath.org/) program) requires a project with some public track record, which
-Corewise does not have yet. I plan to apply again once it does. Until then, Windows SmartScreen shows a warning on
+Nodekeeper does not have yet. I plan to apply again once it does. Until then, Windows SmartScreen shows a warning on
 install, and Windows Smart App Control (when enabled) blocks the installer.
 
 ## How releases are built
 
-Every release published on [GitHub Releases](https://github.com/acboer/Corewise-Monitor/releases) is built from the
+Every release published on [GitHub Releases](https://github.com/acboer/Nodekeeper/releases) is built from the
 tagged source in this repository by [GitHub Actions](.github/workflows/release.yml):
 
-- `Corewise.exe` (dashboard and widget)
-- `Corewise.Service.exe` (sensor service)
-- `CorewiseSetup-<version>.exe` (installer)
+- `Nodekeeper.exe` (dashboard and widget)
+- `Nodekeeper.Service.exe` (sensor service)
+- `NodekeeperSetup-<version>.exe` (installer)
 
 Nothing built on a developer machine is published. Third-party libraries are bundled unmodified and keep their own
 signatures (or none). The workflow already contains the signing steps; they stay inactive until a signing service

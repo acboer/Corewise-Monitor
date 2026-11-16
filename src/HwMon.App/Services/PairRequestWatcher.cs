@@ -64,7 +64,7 @@ public sealed class PairRequestWatcher
     {
         if (LocalMachine(vm) is not { } local)
         {
-            MessageBox.Show(L.T("O serviço do Corewise não está instalado neste PC. Instale com a opção Completo ou Só o serviço."), "Corewise", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(L.T("O serviço do Nodekeeper não está instalado neste PC. Instale com a opção Completo ou Só o serviço."), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Information);
             return;
         }
         try
@@ -73,17 +73,17 @@ public sealed class PairRequestWatcher
             var c = await client.PairCodeAsync();
             var text = L.T("Código: {0}", $"{c.Code[..3]} {c.Code[3..]}") + "   " + L.T("(vale {0:0} minutos, uma vez)", c.Minutes) + "\n\n" +
                        L.T("Este PC: {0}", c.HostName + (c.Addresses.Count > 0 ? "   " + L.T("ou") + "   " + string.Join("  /  ", c.Addresses) : "")) + "\n\n" +
-                       L.T("No outro PC: Corewise > Adicionar máquina, digite o nome (ou o endereço) deste PC e o código.");
+                       L.T("No outro PC: Nodekeeper > Adicionar máquina, digite o nome (ou o endereço) deste PC e o código.");
             if (owner is { IsVisible: true }) MessageBox.Show(owner, text, L.T("Código de pareamento"), MessageBoxButton.OK, MessageBoxImage.Information);
             else MessageBox.Show(text, L.T("Código de pareamento"), MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (CollectorException ex) when (ex.Status == System.Net.HttpStatusCode.NotFound)
         {
-            MessageBox.Show(L.T("Atualize o Corewise neste PC para gerar o código pelo painel. Enquanto isso: Iniciar › Corewise › Código de pareamento."), "Corewise", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(L.T("Atualize o Nodekeeper neste PC para gerar o código pelo painel. Enquanto isso: Iniciar › Nodekeeper › Código de pareamento."), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Information);
         }
         catch (Exception ex)
         {
-            MessageBox.Show(L.T("Não foi possível gerar o código: {0}", ex.Message), "Corewise", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(L.T("Não foi possível gerar o código: {0}", ex.Message), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 }

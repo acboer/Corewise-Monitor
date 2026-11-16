@@ -6,7 +6,7 @@ using HwMon.Core.Telemetry;
 namespace HwMon.App.Services;
 
 /// <summary>
-/// Instalação completa: o serviço Corewise roda neste mesmo PC. Na abertura, se ele ainda não está na lista, o painel
+/// Instalação completa: o serviço Nodekeeper roda neste mesmo PC. Na abertura, se ele ainda não está na lista, o painel
 /// pareia sozinho (sem código: o serviço aceita pedidos de 127.0.0.1). O serviço pode demorar a subir depois do boot
 /// (início atrasado), então tenta por alguns minutos.
 /// </summary>

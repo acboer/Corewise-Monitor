@@ -96,7 +96,7 @@ public sealed class SystemPageViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            Error = L.T("O serviço desta máquina é de uma versão anterior e não tem o resumo do sistema. Atualize o Corewise nela (o pareamento continua valendo).");
+            Error = L.T("O serviço desta máquina é de uma versão anterior e não tem o resumo do sistema. Atualize o Nodekeeper nela (o pareamento continua valendo).");
         }
         catch (Exception ex)
         {

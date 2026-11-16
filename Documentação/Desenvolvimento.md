@@ -1,4 +1,4 @@
-# Corewise — diário de desenvolvimento (antes "Hardware Watch")
+# Nodekeeper — diário de desenvolvimento (antes "Hardware Watch")
 
 Roteiro: [Documentação/Roteiro - Monitor de Workstation e NAS.pdf](Roteiro%20-%20Monitor%20de%20Workstation%20e%20NAS.pdf) ·
 próximas etapas: [Documentação/Plano - Novas funções.md](Plano%20-%20Novas%20funções.md) ·
@@ -37,30 +37,30 @@ identidade visual: [design/LEIA-ME.md](../design/LEIA-ME.md)
 - **Jogos**: tempo jogado conta só o tempo com quadros (jogo esquecido aberto em segundo plano não conta; as sessões
   antigas são corrigidas uma vez); launchers de anticheat (`start_protected_game`) e acesso remoto (Área de Trabalho
   Remota, AnyDesk, Parsec…) não viram jogo, e o overlay não aparece na janela de acesso remoto.
-## Etapas 12 e 13: Corewise e instalador (0.12.0)
+## Etapas 12 e 13: Nodekeeper e instalador (0.12.0)
 
-- **Nome Corewise** em tudo o que aparece: janelas, barra lateral (logo C3 · Órbita + "corewise"), bandeja, widget,
+- **Nome Nodekeeper** em tudo o que aparece: janelas, barra lateral (logo C3 · Órbita + "nodekeeper"), bandeja, widget,
   overlay, mensagens, ícone dos executáveis. Por dentro o código continua `HwMon`.
-  - `HwMon.exe` → **`Corewise.exe`** (painel); `HwMon.Collector.exe` → **`Corewise.Service.exe`** (serviço).
-  - Serviço `HwMonCollector` → **`Corewise`**; regra de firewall `Corewise`; "iniciar com o Windows" `HardwareWatch` → `Corewise`.
-  - Dados: `%AppData%\HwMon` → **`%AppData%\Corewise`** e `%ProgramData%\HwMon` → **`%ProgramData%\Corewise`**, movidos
+  - `HwMon.exe` → **`Nodekeeper.exe`** (painel); `HwMon.Collector.exe` → **`Nodekeeper.Service.exe`** (serviço).
+  - Serviço `HwMonCollector` → **`Nodekeeper`**; regra de firewall `Nodekeeper`; "iniciar com o Windows" `HardwareWatch` → `Nodekeeper`.
+  - Dados: `%AppData%\HwMon` → **`%AppData%\Nodekeeper`** e `%ProgramData%\HwMon` → **`%ProgramData%\Nodekeeper`**, movidos
     sozinhos na primeira execução (máquinas pareadas, histórico, jogos, benchmarks e certificado continuam valendo).
 - **Pareamento sem linha de comando**:
   - No mesmo PC (instalação completa), o painel pareia sozinho com o serviço local (pedido de 127.0.0.1 não precisa
     de código).
-  - Em outro PC: **Iniciar › Corewise › Código de pareamento** (pede administrador e mostra código, nome e IPs do PC);
+  - Em outro PC: **Iniciar › Nodekeeper › Código de pareamento** (pede administrador e mostra código, nome e IPs do PC);
     no painel, **Adicionar máquina**.
-- **Instalador** `publish\CorewiseSetup-0.12.0.exe` (Inno Setup 6, 83 MB; os dois executáveis somam ~280 MB):
+- **Instalador** `publish\NodekeeperSetup-0.12.0.exe` (Inno Setup 6, 83 MB; os dois executáveis somam ~280 MB):
   - Tipos: **Completo** (painel + serviço), **Só o serviço** (NAS, servidor, render farm), **Só o painel**.
   - Português ou inglês (pelo idioma do Windows), atalho no menu Iniciar (e na área de trabalho, opcional),
-    desinstalador em Aplicativos instalados (os dados em `%ProgramData%\Corewise` ficam).
+    desinstalador em Aplicativos instalados (os dados em `%ProgramData%\Nodekeeper` ficam).
   - Atualizar = rodar o Setup novo por cima: para o serviço, fecha o painel, troca os arquivos e religa. Também
     remove a instalação antiga (serviço `HwMonCollector`, `C:\Program Files\HwMon`).
-  - Silencioso (várias máquinas): `CorewiseSetup-0.12.0.exe /VERYSILENT /SUPPRESSMSGBOXES /TYPE=servico`.
+  - Silencioso (várias máquinas): `NodekeeperSetup-0.12.0.exe /VERYSILENT /SUPPRESSMSGBOXES /TYPE=servico`.
   - **Sem assinatura digital**: o Windows mostra "O Windows protegeu o computador" → *Mais informações* →
     *Executar assim mesmo*.
-- Gerar: `powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1` (publica em `publish\corewise` e compila
-  `instalador\Corewise.iss`). Precisa do Inno Setup 6 (`winget install JRSoftware.InnoSetup`).
+- Gerar: `powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1` (publica em `publish\nodekeeper` e compila
+  `instalador\Nodekeeper.iss`). Precisa do Inno Setup 6 (`winget install JRSoftware.InnoSetup`).
 - Os pacotes antigos (`publish\painel`, `publish\coletor`, `atualizar.cmd`) ficam obsoletos.
 
 ## Etapa 11: benchmarks de CPU, memória, GPU e estabilidade (coletor e painel 0.11.0)
@@ -217,7 +217,7 @@ Aba **Benchmarks** na página de cada máquina (ao lado de Painel e Sistema).
 - **Transparência do fundo do widget**: botão direito no widget → Transparência do fundo, ou o controle deslizante
   em Configurações. Só o fundo fica transparente; o texto continua sólido.
 - **Wi-Fi 7** (multi-link) não aparece mais duplicado ("Wi-Fi 4", "Wi-Fi 5"): fica uma interface por placa.
-- Atalho `Corewise.lnk` na raiz do projeto abre o Corewise instalado (`C:\Program Files\Corewise\Corewise.exe`).
+- Atalho `Nodekeeper.lnk` na raiz do projeto abre o Nodekeeper instalado (`C:\Program Files\Nodekeeper\Nodekeeper.exe`).
 
 ## Etapa 07: bateria de periféricos (coletor e painel 0.7.0)
 

@@ -1,6 +1,6 @@
 # Third-party components
 
-Corewise itself is licensed under the [MIT License](LICENSE). It is built with the open-source components below,
+Nodekeeper itself is licensed under the [MIT License](LICENSE). It is built with the open-source components below,
 which keep their own licenses. Unmodified upstream libraries are bundled inside the single-file executables.
 
 | Component | Used for | License |
@@ -13,11 +13,12 @@ which keep their own licenses. Unmodified upstream libraries are bundled inside 
 | [SQLite](https://sqlite.org) | History database engine | Public domain |
 | System.Management, System.Diagnostics.PerformanceCounter, System.Security.Cryptography.ProtectedData, Microsoft.Extensions.Hosting.WindowsServices | Windows APIs | MIT |
 | [Vortice.Windows](https://github.com/amerkoleci/Vortice.Windows) (Direct3D11, D3DCompiler) and SharpGen.Runtime | GPU benchmark (DirectX 11 compute) | MIT |
-| [Inter](https://rsms.me/inter/) | Typeface used in the design files | SIL Open Font License 1.1 (`design/Inter/OFL.txt`) |
+| [Manrope](https://github.com/googlefonts/manrope) | Interface typeface, embedded in the dashboard | SIL Open Font License 1.1 (`design/nodekeeper/fonts/OFL.txt`) |
+| [Inter](https://rsms.me/inter/) | Typeface used in earlier design files | SIL Open Font License 1.1 (`design/Inter/OFL.txt`) |
 | [Inno Setup](https://jrsoftware.org/isinfo.php) | Installer | Inno Setup License |
 
 ## Not bundled
 
 - **[PawnIO](https://pawnio.eu/)** is the signed kernel driver LibreHardwareMonitor uses to read motherboard and CPU
-  sensors. Corewise does not ship or install it; when it is installed separately, more sensors become available.
-  Without it, Corewise still works with the sensors Windows exposes.
+  sensors. Nodekeeper does not ship or install it; when it is installed separately, more sensors become available.
+  Without it, Nodekeeper still works with the sensors Windows exposes.

@@ -152,7 +152,7 @@ public partial class MainWindow : Window
     {
         if (_vm.Selected is not MachineViewModel m) return;
         var answer = MessageBox.Show(this,
-            L.T("Remover \"{0}\" deste painel?\n\nO Corewise continua instalado na máquina. Para cortar o acesso deste PC lá também, rode nela, como administrador: Corewise.Service.exe revogar", m.Name),
+            L.T("Remover \"{0}\" deste painel?\n\nO Nodekeeper continua instalado na máquina. Para cortar o acesso deste PC lá também, rode nela, como administrador: Nodekeeper.Service.exe revogar", m.Name),
             L.T("Remover máquina"), MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (answer == MessageBoxResult.Yes) _vm.RemoveMachine(m);
     }

@@ -19,7 +19,7 @@ public static class GameNames
         "obs64", "vlc", "mpc-hc64", "mpc-be64", "mpv", "PotPlayerMini64", "Video.UI", "Microsoft.Media.Player", "Netflix",
         "ApplicationFrameHost", "ShellExperienceHost", "StartMenuExperienceHost", "SearchHost", "TextInputHost", "LockApp",
         "Widgets", "SystemSettings", "WindowsTerminal", "Photos", "PhotosApp", "GameBar", "XboxGameBarWidgets",
-        "NVIDIA Overlay", "NVIDIA app", "nvcontainer", "HwMon", "HwMon.Collector", "Corewise", "Corewise.Service", "Code", "devenv", "POWERPNT",
+        "NVIDIA Overlay", "NVIDIA app", "nvcontainer", "HwMon", "HwMon.Collector", "Corewise", "Corewise.Service", "Nodekeeper", "Nodekeeper.Service", "Code", "devenv", "POWERPNT",
         "CefSharp.BrowserSubprocess", "Lively", "wallpaper32", "wallpaper64",
         // Acesso remoto e máquinas virtuais: desenham a tela de outro PC.
         "msrdc", "mstsc", "msrdcw", "Windows365", "vmconnect", "VirtualBoxVM", "vmware-vmx", "vmware", "AnyDesk", "TeamViewer",

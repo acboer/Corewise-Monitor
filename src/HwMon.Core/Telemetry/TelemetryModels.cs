@@ -6,9 +6,9 @@ public static class Protocol
 {
     public const int DefaultPort = 47821;
     public const int ApiVersion = 1;
-    public const string ServiceName = "Corewise";
-    /// <summary>Nome do serviço até a 0.11 (o instalador remove).</summary>
-    public const string LegacyServiceName = "HwMonCollector";
+    public const string ServiceName = "Nodekeeper";
+    /// <summary>Nomes anteriores do serviço (o instalador remove): "Corewise" da 0.12 à 0.13, "HwMonCollector" até a 0.11.</summary>
+    public static readonly string[] LegacyServiceNames = ["Corewise", "HwMonCollector"];
 }
 
 /// <summary>Tipos de componente. O id de cada componente é estável entre reinícios (número de série, GUID...).</summary>

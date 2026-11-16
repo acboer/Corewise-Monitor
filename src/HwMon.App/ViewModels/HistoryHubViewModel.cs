@@ -579,7 +579,7 @@ public sealed class HistoryHubViewModel : ObservableObject
 
     private static string Outdated(CollectorException ex) => ex.Message.Contains("desligado", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("disabled", StringComparison.OrdinalIgnoreCase)
         ? L.T(ex.Message)
-        : L.T("o serviço desta máquina é antigo. Atualize o Corewise nela para gravar jogos e o uso.");
+        : L.T("o serviço desta máquina é antigo. Atualize o Nodekeeper nela para gravar jogos e o uso.");
 
     private void FillSessions()
     {
@@ -625,14 +625,14 @@ public sealed class HistoryHubViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show(L.T("Não foi possível renomear: {0}", ex.Message), "Corewise", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(L.T("Não foi possível renomear: {0}", ex.Message), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
     private async Task IgnoreAsync(GameRow game)
     {
         if (MessageBox.Show(L.T("Ignorar \"{0}\"?\n\nEle deixa de ser gravado e some das listas (as sessões antigas ficam guardadas). Dá para voltar em \"Programas ignorados\", no fim da página.", game.Name),
-                "Corewise", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) return;
+                "Nodekeeper", MessageBoxButton.OKCancel, MessageBoxImage.Question) != MessageBoxResult.OK) return;
         await UpdateAsync(game.Machine, new GameUpdate { Exe = game.Summary.Exe, Ignored = true });
     }
 
@@ -649,14 +649,14 @@ public sealed class HistoryHubViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show(L.T("Não foi possível salvar: {0}", ex.Message), "Corewise", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(L.T("Não foi possível salvar: {0}", ex.Message), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
     private async Task DeleteSessionAsync()
     {
         if (Detail is not { } d) return;
-        if (MessageBox.Show(L.T("Excluir a sessão de {0} de {1}? Não dá para desfazer.", d.Session.Name, When(d.Session.Start)), "Corewise",
+        if (MessageBox.Show(L.T("Excluir a sessão de {0} de {1}? Não dá para desfazer.", d.Session.Name, When(d.Session.Start)), "Nodekeeper",
                 MessageBoxButton.OKCancel, MessageBoxImage.Warning) != MessageBoxResult.OK) return;
         try
         {
@@ -667,7 +667,7 @@ public sealed class HistoryHubViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            MessageBox.Show(L.T("Não foi possível excluir: {0}", ex.Message), "Corewise", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(L.T("Não foi possível excluir: {0}", ex.Message), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
 
@@ -700,7 +700,7 @@ public sealed class HistoryHubViewModel : ObservableObject
         Filter = null;
         await LoadAsync();
         if (errors.Count > 0)
-            MessageBox.Show(L.T("Não foi possível limpar:") + "\n\n" + string.Join("\n", errors), "Corewise", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(L.T("Não foi possível limpar:") + "\n\n" + string.Join("\n", errors), "Nodekeeper", MessageBoxButton.OK, MessageBoxImage.Warning);
     }
 
     /// <summary>CSV (ponto e vírgula e vírgula decimal em português; vírgula e ponto em inglês): sessões na aba Jogos, dias na aba Uso, pontos no detalhe.</summary>

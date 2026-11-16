@@ -96,7 +96,7 @@ public sealed class LoadBenchViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            Error = L.T("O serviço desta máquina ainda não tem este teste. Atualize o Corewise nela.");
+            Error = L.T("O serviço desta máquina ainda não tem este teste. Atualize o Nodekeeper nela.");
         }
         catch (Exception)
         {
@@ -127,7 +127,7 @@ public sealed class LoadBenchViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            Error = L.T("O serviço desta máquina ainda não tem este teste. Atualize o Corewise nela.");
+            Error = L.T("O serviço desta máquina ainda não tem este teste. Atualize o Nodekeeper nela.");
             ResultTitle = null;
         }
         catch (Exception ex)
@@ -212,7 +212,7 @@ public sealed class LoadBenchViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            Error = L.T("Atualize o Corewise nesta máquina para remover resultados.");
+            Error = L.T("Atualize o Nodekeeper nesta máquina para remover resultados.");
         }
         catch (Exception ex)
         {

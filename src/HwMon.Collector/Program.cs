@@ -102,7 +102,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
 
     var app = builder.Build();
     var log = app.Logger;
-    log.LogInformation("Corewise Service {Version} na porta {Port}. Dados em {Dir}. Certificado {Fingerprint}.",
+    log.LogInformation("Nodekeeper Service {Version} na porta {Port}. Dados em {Dir}. Certificado {Fingerprint}.",
         TelemetryEngine.AgentVersion, config.Port, store.Directory, Fingerprint.Short(fingerprint));
 
     var jsonOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Http.Json.JsonOptions>>().Value.SerializerOptions;
@@ -168,7 +168,7 @@ static async Task<int> RunAsync(string[] args, string? dataDir)
                     MachineId = e.MachineId,
                     HostName = e.HostName,
                 }),
-                PairingCodes.Result.NoCode => Results.Problem(L.T("Nenhum pareamento aberto. No outro PC: menu Iniciar > Corewise > Código de pareamento."), statusCode: 403),
+                PairingCodes.Result.NoCode => Results.Problem(L.T("Nenhum pareamento aberto. No outro PC: menu Iniciar > Nodekeeper > Código de pareamento."), statusCode: 403),
                 PairingCodes.Result.Expired => Results.Problem(L.T("O código expirou. Gere outro."), statusCode: 403),
                 PairingCodes.Result.Locked => Results.Problem(L.T("Tentativas esgotadas. Gere outro código."), statusCode: 403),
                 _ => Results.Problem(L.T("Código incorreto."), statusCode: 403),
@@ -530,14 +530,14 @@ static int Pair(string? dataDir, bool pause)
     var addresses = LocalAddresses();
     Console.WriteLine();
     static string Label(string pt) => ("  " + L.T(pt)).PadRight(15);
-    Console.WriteLine("  " + L.T("Corewise · parear este PC"));
+    Console.WriteLine("  " + L.T("Nodekeeper · parear este PC"));
     Console.WriteLine();
     Console.WriteLine(Label("Código:") + $"{code[..3]} {code[3..]}     " + L.T("(vale {0:0} minutos, uma vez)", PairingCodes.Validity.TotalMinutes));
     Console.WriteLine(Label("Este PC:") + Environment.MachineName + (addresses.Count > 0 ? "   " + L.T("ou") + "   " + string.Join("  /  ", addresses) : ""));
     if (config.Port != Protocol.DefaultPort) Console.WriteLine(Label("Porta:") + config.Port);
     Console.WriteLine(Label("Certificado:") + Fingerprint.Short(Fingerprint.Of(certificate)));
     Console.WriteLine();
-    Console.WriteLine("  " + L.T("No outro PC: Corewise > Adicionar máquina, digite o nome (ou o endereço) deste PC e o código."));
+    Console.WriteLine("  " + L.T("No outro PC: Nodekeeper > Adicionar máquina, digite o nome (ou o endereço) deste PC e o código."));
     Console.WriteLine();
     if (pause)
     {
@@ -612,7 +612,7 @@ static int PrintSummary()
     return 0;
 }
 
-// FPS de quem está desenhando (precisa de administrador): Corewise.Service.exe quadros
+// FPS de quem está desenhando (precisa de administrador): Nodekeeper.Service.exe quadros
 // Testes de carga no console (sem serviço): "teste cpu", "teste memoria", "teste gpu".
 static async Task<int> RunLoadBench(string? kind)
 {
@@ -646,7 +646,7 @@ static async Task<int> PrintFrames()
     return 0;
 }
 
-// Teste de disco no console: Corewise.Service.exe benchmark D [MB] [segundos]
+// Teste de disco no console: Nodekeeper.Service.exe benchmark D [MB] [segundos]
 static async Task<int> RunDiskBenchmark(string[] args)
 {
     var rest = args.SkipWhile(a => a != "benchmark").Skip(1).ToArray();
@@ -739,15 +739,15 @@ static int Help()
     Console.WriteLine("""
         HwMon.Collector — coletor de telemetria (serviço do Windows)
 
-          Corewise.Service.exe                  roda o coletor (como serviço ou no console)
-          Corewise.Service.exe instalar         instala e inicia o serviço + regra de firewall   (administrador)
-          Corewise.Service.exe desinstalar      remove o serviço e a regra de firewall           (administrador)
-          Corewise.Service.exe parear           gera um código de 6 dígitos para parear um PC    (administrador)
-          Corewise.Service.exe clientes         lista os PCs pareados
-          Corewise.Service.exe revogar <nome>   corta o acesso de um PC pareado
-          Corewise.Service.exe status           estado do serviço, porta e certificado
-          Corewise.Service.exe sistema          mostra o resumo do sistema (placa-mãe, BIOS, CPU, memória...)
-          Corewise.Service.exe papel <texto>    nome do papel mostrado no painel (ex.: NAS)      (administrador)
+          Nodekeeper.Service.exe                  roda o coletor (como serviço ou no console)
+          Nodekeeper.Service.exe instalar         instala e inicia o serviço + regra de firewall   (administrador)
+          Nodekeeper.Service.exe desinstalar      remove o serviço e a regra de firewall           (administrador)
+          Nodekeeper.Service.exe parear           gera um código de 6 dígitos para parear um PC    (administrador)
+          Nodekeeper.Service.exe clientes         lista os PCs pareados
+          Nodekeeper.Service.exe revogar <nome>   corta o acesso de um PC pareado
+          Nodekeeper.Service.exe status           estado do serviço, porta e certificado
+          Nodekeeper.Service.exe sistema          mostra o resumo do sistema (placa-mãe, BIOS, CPU, memória...)
+          Nodekeeper.Service.exe papel <texto>    nome do papel mostrado no painel (ex.: NAS)      (administrador)
 
         Configuração: %ProgramData%\HwMon\config.json (porta, papel, discos sem SMART). Reinicie o serviço após editar.
         Opção de desenvolvimento: --dados <pasta> usa outra pasta de dados.

@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HwMon.App.ViewModels"
         xmlns:controls="clr-namespace:HwMon.App.Controls"
-        Title="Corewise" Width="1320" Height="860" MinWidth="900" MinHeight="600"
+        Title="Nodekeeper" Width="1320" Height="860" MinWidth="900" MinHeight="600"
         Icon="/Assets/app.ico"
         Background="{DynamicResource App.Background}"
         FontFamily="{StaticResource Font.Text}"
@@ -198,7 +198,7 @@
                             <DataTemplate DataType="{x:Type vm:MachineViewModel}">
                                 <!-- Abre ao soltar o botão (MouseUp): ao abrir no MouseDown, o MouseUp caía no cartão que estivesse embaixo do
                                      ponteiro na página da máquina e abria o histórico dele. -->
-                                <Border Style="{StaticResource Card}" Width="440" Padding="18" CornerRadius="16" Margin="0,0,12,12" Cursor="Hand"
+                                <Border Style="{StaticResource Card}" Width="440" Padding="18" CornerRadius="20" Margin="0,0,12,12" Cursor="Hand"
                                         MouseLeftButtonUp="OverviewCard_Click">
                                     <StackPanel>
                                         <Grid>
@@ -315,7 +315,7 @@
                     </StackPanel>
                 </Grid>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl x:Name="SensorsContent" ItemsSource="{Binding Machines}" Margin="0,0,0,28" Background="{DynamicResource App.Background}">
+                    <ItemsControl x:Name="SensorsContent" ItemsSource="{Binding Machines}" Margin="0,0,0,28" Background="Transparent">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type vm:SensorMachine}">
                                 <Border Style="{StaticResource Card}" Margin="0,0,0,12" Padding="16,12">
@@ -969,7 +969,7 @@
                             </Grid.ColumnDefinitions>
                             <Image Source="/Assets/app-48.png" Width="36" Height="36" RenderOptions.BitmapScalingMode="HighQuality"/>
                             <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="corewise" Style="{StaticResource Text.CardTitle}" FontFamily="{StaticResource Font.Display}" FontSize="16" FontWeight="SemiBold"/>
+                                <TextBlock Text="nodekeeper" Style="{StaticResource Text.CardTitle}" FontFamily="{StaticResource Font.Display}" FontSize="16" FontWeight="Bold"/>
                                 <TextBlock Text="{Binding Version}" Style="{StaticResource Caption}" FontSize="12"/>
                             </StackPanel>
                             <Button Grid.Column="2" Content="Abrir pasta de dados" Style="{StaticResource FlatButton}" VerticalAlignment="Center"
@@ -1608,12 +1608,18 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Fundo em gradiente (Nodekeeper): cor base da janela + três manchas suaves. A barra lateral e os cartões são
+             translúcidos, então o gradiente aparece por trás. Fica atrás de tudo e não recebe cliques. -->
+        <Rectangle Grid.ColumnSpan="2" Fill="{DynamicResource App.Glow1}" IsHitTestVisible="False"/>
+        <Rectangle Grid.ColumnSpan="2" Fill="{DynamicResource App.Glow2}" IsHitTestVisible="False"/>
+        <Rectangle Grid.ColumnSpan="2" Fill="{DynamicResource App.Glow3}" IsHitTestVisible="False"/>
+
         <!-- ============================== Barra lateral ============================== -->
         <Border Background="{DynamicResource App.Sidebar}" BorderThickness="0,0,1,0" BorderBrush="{DynamicResource App.Divider}">
             <DockPanel Margin="12,18,12,14">
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="8,0,0,22">
                     <Image Source="/Assets/app-48.png" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality"/>
-                    <TextBlock Text="corewise" Margin="10,0,0,1" VerticalAlignment="Center" FontFamily="{StaticResource Font.Display}" FontSize="19" FontWeight="SemiBold"/>
+                    <TextBlock Text="nodekeeper" Margin="10,0,0,1" VerticalAlignment="Center" FontFamily="{StaticResource Font.Display}" FontSize="17" FontWeight="Bold"/>
                 </StackPanel>
 
                 <StackPanel DockPanel.Dock="Bottom">

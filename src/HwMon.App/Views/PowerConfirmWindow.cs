@@ -19,7 +19,7 @@ public sealed class PowerConfirmWindow : Window
             "restart" => (L.T("Reiniciar {0}?", machine), L.T("Reiniciar")),
             _ => (L.T("Suspender {0}?", machine), L.T("Suspender")),
         };
-        Title = "Corewise";
+        Title = "Nodekeeper";
         Width = 460;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;

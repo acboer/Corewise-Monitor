@@ -72,7 +72,7 @@ public sealed class ProcessListViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            Error = L.T("O serviço desta máquina ainda não mostra processos. Atualize o Corewise nela.");
+            Error = L.T("O serviço desta máquina ainda não mostra processos. Atualize o Nodekeeper nela.");
             _timer.Stop();
         }
         catch (Exception ex)

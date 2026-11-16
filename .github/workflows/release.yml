@@ -44,7 +44,7 @@ jobs:
         shell: pwsh
         run: ./instalador/gerar.ps1 -SoPublicar
 
-      # 1) Assina Corewise.exe e Corewise.Service.exe antes de irem para dentro do instalador.
+      # 1) Assina Nodekeeper.exe e Nodekeeper.Service.exe antes de irem para dentro do instalador.
       - name: Upload executables for signing
         if: env.SIGN == 'true'
         id: upload-exe
@@ -52,8 +52,8 @@ jobs:
         with:
           name: executaveis
           path: |
-            publish/corewise/Corewise.exe
-            publish/corewise/Corewise.Service.exe
+            publish/nodekeeper/Nodekeeper.exe
+            publish/nodekeeper/Nodekeeper.Service.exe
 
       - name: Sign executables
         if: env.SIGN == 'true'
@@ -67,7 +67,7 @@ jobs:
           github-artifact-id: ${{ steps.upload-exe.outputs.artifact-id }}
           wait-for-completion: true
           wait-for-completion-timeout-in-seconds: 3600
-          output-artifact-directory: publish/corewise
+          output-artifact-directory: publish/nodekeeper
           parameters: |
             version: ${{ toJSON(steps.version.outputs.version) }}
 
@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: instalador
-          path: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
+          path: publish/NodekeeperSetup-${{ steps.version.outputs.version }}.exe
 
       - name: Sign installer
         if: env.SIGN == 'true'
@@ -103,8 +103,8 @@ jobs:
       - name: Keep installer as build artifact
         uses: actions/upload-artifact@v5
         with:
-          name: CorewiseSetup-${{ steps.version.outputs.version }}
-          path: publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe
+          name: NodekeeperSetup-${{ steps.version.outputs.version }}
+          path: publish/NodekeeperSetup-${{ steps.version.outputs.version }}.exe
 
       # Release já criada à mão para esta tag: só anexa (ou troca) o instalador. Senão, cria um rascunho.
       - name: Attach to GitHub release
@@ -114,8 +114,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = $env:GITHUB_REF_NAME
-          $file = "publish/CorewiseSetup-${{ steps.version.outputs.version }}.exe"
+          $file = "publish/NodekeeperSetup-${{ steps.version.outputs.version }}.exe"
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) { gh release upload $tag $file --clobber }
-          else { gh release create $tag $file --draft --title "Corewise ${{ steps.version.outputs.version }}" --notes "Edit these notes before publishing." }
+          else { gh release create $tag $file --draft --title "Nodekeeper ${{ steps.version.outputs.version }}" --notes "Edit these notes before publishing." }
           if ($LASTEXITCODE -ne 0) { throw "Falha ao anexar o instalador à release $tag." }

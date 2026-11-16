@@ -6,23 +6,34 @@ namespace HwMon.Collector;
 /// <summary>Instala/remove o serviço do Windows e a regra de firewall (redes privadas e de domínio).</summary>
 public static class Installer
 {
-    private const string FirewallRule = "Corewise";
-    private const string LegacyFirewallRule = "HwMon Collector";
+    private const string FirewallRule = "Nodekeeper";
+    /// <summary>Regras de firewall dos nomes anteriores: "Corewise" (0.12–0.13) e "HwMon Collector" (até 0.11).</summary>
+    private static readonly string[] LegacyFirewallRules = ["Corewise", "HwMon Collector"];
 
-    /// <summary>Até a 0.11: serviço "HwMonCollector" em C:\Program Files\HwMon\Collector. Remove tudo (os dados já migraram).</summary>
+    /// <summary>
+    /// Nomes anteriores: serviço "Corewise" (0.12–0.13, em C:\Program Files\Corewise) e "HwMonCollector" (até a 0.11, em
+    /// C:\Program Files\HwMon). Remove serviço, regra de firewall e pasta de programa; os dados já migraram para a nova.
+    /// </summary>
     private static void RemoveLegacy()
     {
-        if (Run("sc.exe", $"query {Protocol.LegacyServiceName}", quiet: true) == 0)
+        foreach (var name in Protocol.LegacyServiceNames)
         {
-            Console.WriteLine("Removendo o serviço antigo (HwMonCollector)...");
-            Run("net.exe", $"stop {Protocol.LegacyServiceName}", quiet: true);
-            Run("sc.exe", $"delete {Protocol.LegacyServiceName}", quiet: true);
+            if (Run("sc.exe", $"query {name}", quiet: true) != 0) continue;
+            Console.WriteLine($"Removendo o serviço antigo ({name})...");
+            Run("net.exe", $"stop {name}", quiet: true);
+            Run("sc.exe", $"delete {name}", quiet: true);
             Thread.Sleep(1500);
         }
-        Run("netsh", $"advfirewall firewall delete rule name=\"{LegacyFirewallRule}\"", quiet: true);
-        var old = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "HwMon");
-        try { if (Directory.Exists(old)) Directory.Delete(old, recursive: true); }
-        catch (Exception) { /* arquivo preso: fica para depois, não atrapalha */ }
+        foreach (var rule in LegacyFirewallRules)
+            Run("netsh", $"advfirewall firewall delete rule name=\"{rule}\"", quiet: true);
+        foreach (var folder in new[] { "Corewise", "HwMon" })
+        {
+            var old = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), folder);
+            // Nunca a pasta de onde este executável roda (instalação feita à mão numa pasta com esse nome).
+            if (Environment.ProcessPath?.StartsWith(old + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) == true) continue;
+            try { if (Directory.Exists(old)) Directory.Delete(old, recursive: true); }
+            catch (Exception) { /* arquivo preso: fica para depois, não atrapalha */ }
+        }
     }
 
     public static int Install(int port)
@@ -34,7 +45,7 @@ public static class Installer
         }
         var exe = Environment.ProcessPath!;
         if (exe.StartsWith(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), StringComparison.OrdinalIgnoreCase))
-            Console.WriteLine("Aviso: o executável está na pasta do usuário. Recomendado: instalar pelo CorewiseSetup.");
+            Console.WriteLine("Aviso: o executável está na pasta do usuário. Recomendado: instalar pelo NodekeeperSetup.");
         RemoveLegacy();
 
         if (ServiceExists())
@@ -46,9 +57,9 @@ public static class Installer
             Thread.Sleep(1000);
         }
 
-        if (Run("sc.exe", $"create {Protocol.ServiceName} binPath= \"\\\"{exe}\\\"\" start= delayed-auto obj= LocalSystem DisplayName= \"Corewise\"") != 0)
+        if (Run("sc.exe", $"create {Protocol.ServiceName} binPath= \"\\\"{exe}\\\"\" start= delayed-auto obj= LocalSystem DisplayName= \"Nodekeeper\"") != 0)
             return 1;
-        Run("sc.exe", $"description {Protocol.ServiceName} \"Coleta a telemetria de hardware deste PC e a publica para os painéis HwMon pareados na rede local.\"");
+        Run("sc.exe", $"description {Protocol.ServiceName} \"Coleta a telemetria de hardware deste PC e a publica para os painéis Nodekeeper pareados na rede local.\"");
         Run("sc.exe", $"failure {Protocol.ServiceName} reset= 86400 actions= restart/5000/restart/15000/restart/60000");
 
         Run("netsh", $"advfirewall firewall delete rule name=\"{FirewallRule}\"", quiet: true);
@@ -58,7 +69,7 @@ public static class Installer
         if (Run("sc.exe", $"start {Protocol.ServiceName}") != 0) return 1;
         Console.WriteLine();
         Console.WriteLine($"Serviço instalado e iniciado (porta {port}).");
-        Console.WriteLine("Para ver este PC em outro computador: menu Iniciar > Corewise > Código de pareamento.");
+        Console.WriteLine("Para ver este PC em outro computador: menu Iniciar > Nodekeeper > Código de pareamento.");
         return 0;
     }
 

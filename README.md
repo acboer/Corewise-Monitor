@@ -1,10 +1,13 @@
-# Corewise
+# Nodekeeper
 
 **Hardware monitor for all the PCs in your home or studio.** Temperatures, usage, fans, disks (SMART), network,
 headset/mouse battery, in-game FPS and benchmarks, for your gaming PC, your NAS and your render nodes, in one
 dashboard and an always-on-top desktop widget.
 
 Free and open source (MIT). Windows 10/11, 64-bit. English and Portuguese.
+
+> Formerly **Corewise** (previews 0.12–0.13). Installing Nodekeeper over it keeps your paired PCs, history and
+> settings; the old service, shortcuts and folders are replaced automatically.
 
 ![Overview of three PCs: workstation, NAS and HTPC](docs/screenshots/overview.jpg)
 
@@ -34,20 +37,20 @@ Free and open source (MIT). Windows 10/11, 64-bit. English and Portuguese.
 
 ## Download and install
 
-1. Download `CorewiseSetup-<version>.exe` from [Releases](https://github.com/acboer/Corewise-Monitor/releases).
+1. Download `NodekeeperSetup-<version>.exe` from [Releases](https://github.com/acboer/Nodekeeper/releases).
    The installer is not code-signed yet, so Windows SmartScreen warns: click **More info › Run anyway**
    (see [Code signing](#code-signing)).
 2. Choose **Full** (dashboard + service, for your own PC), **Service only** (for a PC you watch from another one:
    NAS, server, render node) or **Dashboard only**.
 3. To add another PC: **Add machine**, type its name, **Find**, **Request access**, then click **Allow** on that PC.
-   A PC with only the service shows a pairing code instead (Start › Corewise › Pairing code).
+   A PC with only the service shows a pairing code instead (Start › Nodekeeper › Pairing code).
 
-Silent install for many machines: `CorewiseSetup-<version>.exe /VERYSILENT /SUPPRESSMSGBOXES /TYPE=servico`.
-Uninstall from Windows Settings › Apps; history stays in `C:\ProgramData\Corewise` until you delete it.
+Silent install for many machines: `NodekeeperSetup-<version>.exe /VERYSILENT /SUPPRESSMSGBOXES /TYPE=servico`.
+Uninstall from Windows Settings › Apps; history stays in `C:\ProgramData\Nodekeeper` until you delete it.
 
 ## What the installer changes on your system
 
-- Installs the **Corewise** Windows service, running as Local System. Reading motherboard, CPU and disk sensors
+- Installs the **Nodekeeper** Windows service, running as Local System. Reading motherboard, CPU and disk sensors
   (and frame events for the FPS overlay) requires administrator rights, so the service does it and the dashboard runs
   as a normal user.
 - Adds a Windows Firewall rule for **TCP 47821, private and domain networks only (never public Wi-Fi)**, so dashboards on your other PCs can reach
@@ -55,7 +58,7 @@ Uninstall from Windows Settings › Apps; history stays in `C:\ProgramData\Corew
 - Starts the dashboard/widget with Windows (on by default; turn it off in Settings).
 
 The uninstaller removes the service, the firewall rule and the startup entry. Your history and settings stay in
-`C:\ProgramData\Corewise` and `%AppData%\Corewise` until you delete them.
+`C:\ProgramData\Nodekeeper` and `%AppData%\Nodekeeper` until you delete them.
 
 ## Privacy
 
@@ -65,7 +68,7 @@ network. Details in [PRIVACY.md](PRIVACY.md).
 
 ## Code signing
 
-Corewise is not code-signed yet. It's a solo project, and free signing for open-source projects needs some public
+Nodekeeper is not code-signed yet. It's a solo project, and free signing for open-source projects needs some public
 track record first; I'll apply again once the project has more history. Until then:
 
 - Windows SmartScreen warns on install (**More info › Run anyway**).
@@ -87,15 +90,15 @@ Requirements: Windows, [.NET 10 SDK](https://dotnet.microsoft.com/download), and
 
 ```powershell
 dotnet build HardwareMonitor.sln
-powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1   # publishes and builds publish\CorewiseSetup-<version>.exe
+powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1   # publishes and builds publish\NodekeeperSetup-<version>.exe
 ```
 
 | Folder | What it is |
 |---|---|
 | `src/HwMon.Core` | Sensors, telemetry model, benchmarks, translations (`Idiomas/en.json`) |
-| `src/HwMon.Collector` | `Corewise.Service.exe`: Windows service with the HTTPS API, history and game recorder |
+| `src/HwMon.Collector` | `Nodekeeper.Service.exe`: Windows service with the HTTPS API, history and game recorder |
 | `src/HwMon.Client` | API client shared by the dashboard and the CLI |
-| `src/HwMon.App` | `Corewise.exe`: WPF dashboard, widget, tray icon and game overlay |
+| `src/HwMon.App` | `Nodekeeper.exe`: WPF dashboard, widget, tray icon and game overlay |
 | `instalador` | Inno Setup script and build script |
 
 The code and comments are in Portuguese; the UI is translated by putting the Portuguese text through `L.T(...)` and

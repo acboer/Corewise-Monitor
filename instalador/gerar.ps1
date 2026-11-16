@@ -1,10 +1,10 @@
 ﻿<#
-  Gera o instalador do Corewise: publica o painel e o serviço em publish\corewise e compila Corewise.iss com o
-  Inno Setup 6. Saída: publish\CorewiseSetup-<versão>.exe
+  Gera o instalador do Nodekeeper: publica o painel e o serviço em publish\nodekeeper e compila Nodekeeper.iss com o
+  Inno Setup 6. Saída: publish\NodekeeperSetup-<versão>.exe
 
     powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1                 # tudo
     powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1 -SoPublicar     # só os .exe (para assinar)
-    powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1 -SoInstalador   # só o instalador, com os .exe já em publish\corewise
+    powershell -ExecutionPolicy Bypass -File instalador\gerar.ps1 -SoInstalador   # só o instalador, com os .exe já em publish\nodekeeper
 
   O GitHub Actions (.github\workflows\release.yml) usa as duas metades, com a assinatura dos .exe no meio.
 #>
@@ -14,7 +14,7 @@ $root = Split-Path $PSScriptRoot
 Set-Location $root
 
 $version = ([xml](Get-Content (Join-Path $root 'src\HwMon.App\HwMon.App.csproj') -Raw)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
-$out = Join-Path $root 'publish\corewise'
+$out = Join-Path $root 'publish\nodekeeper'
 
 if (-not $SoInstalador) {
     if (Test-Path $out) { Remove-Item $out -Recurse -Force }
@@ -32,7 +32,7 @@ $iscc = @("$env:LOCALAPPDATA\Programs", ${env:ProgramFiles(x86)}, $env:ProgramFi
 if (-not $iscc) { throw 'Inno Setup 6 não encontrado (winget install JRSoftware.InnoSetup).' }
 
 Write-Host "Compilando o instalador..."
-& $iscc /Q "/DAppVersion=$version" (Join-Path $PSScriptRoot 'Corewise.iss')
+& $iscc /Q "/DAppVersion=$version" (Join-Path $PSScriptRoot 'Nodekeeper.iss')
 if ($LASTEXITCODE -ne 0) { throw 'Falha ao compilar o instalador.' }
-$setup = Join-Path $root "publish\CorewiseSetup-$version.exe"
+$setup = Join-Path $root "publish\NodekeeperSetup-$version.exe"
 Write-Host ("Pronto: {0} ({1:N0} MB)" -f $setup, ((Get-Item $setup).Length / 1MB)) -ForegroundColor Green

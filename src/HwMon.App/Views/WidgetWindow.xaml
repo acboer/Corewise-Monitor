@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:HwMon.App.ViewModels"
         xmlns:controls="clr-namespace:HwMon.App.Controls"
-        Title="Corewise · widget" Width="270" SizeToContent="Height" Icon="/Assets/app.ico"
+        Title="Nodekeeper · widget" Width="270" SizeToContent="Height" Icon="/Assets/app.ico"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent" ResizeMode="NoResize"
         ShowInTaskbar="False" Topmost="{Binding Topmost}"
         FontFamily="{StaticResource Font.Text}" Foreground="{DynamicResource Text.Primary}">

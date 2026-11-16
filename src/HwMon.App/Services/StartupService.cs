@@ -10,11 +10,12 @@ namespace HwMon.App.Services;
 public static class StartupService
 {
     private const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    private const string ValueName = "Corewise";
-    private const string LegacyValueName = "HardwareWatch";
+    private const string ValueName = "Nodekeeper";
+    /// <summary>Nomes anteriores da entrada: "Corewise" (0.12–0.13) e "HardwareWatch" (até a 0.11).</summary>
+    private static readonly string[] LegacyValueNames = ["Corewise", "HardwareWatch"];
     public const string StartupArg = "--inicio";
 
-    public static string ExePath => Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Corewise.exe");
+    public static string ExePath => Environment.ProcessPath ?? Path.Combine(AppContext.BaseDirectory, "Nodekeeper.exe");
 
     /// <summary>Cópia compilada dentro de bin\ (desenvolvimento): não liga sozinha na primeira execução.</summary>
     public static bool IsDevBuild => ExePath.Contains(@"\bin\", StringComparison.OrdinalIgnoreCase);
@@ -46,16 +47,22 @@ public static class StartupService
         try
         {
             var s = settings.Current.Startup;
-            // Até a 0.11 a entrada se chamava "HardwareWatch" e apontava para HwMon.exe: troca pela nova, mantendo a escolha.
+            // Entrada com um nome anterior (apontando para Corewise.exe ou HwMon.exe): troca pela nova, mantendo a escolha.
+            var hadLegacy = false;
             using (var run = Registry.CurrentUser.OpenSubKey(RunKey, writable: true))
-                if (run?.GetValue(LegacyValueName) is string)
-                {
-                    run.DeleteValue(LegacyValueName, throwOnMissingValue: false);
-                    if (!IsDevBuild) SetEnabled(true);
-                    s.Configured = true;
-                    settings.SaveSoon();
-                    return;
-                }
+                foreach (var legacy in LegacyValueNames)
+                    if (run?.GetValue(legacy) is string)
+                    {
+                        run.DeleteValue(legacy, throwOnMissingValue: false);
+                        hadLegacy = true;
+                    }
+            if (hadLegacy)
+            {
+                if (!IsDevBuild) SetEnabled(true);
+                s.Configured = true;
+                settings.SaveSoon();
+                return;
+            }
             if (!s.Configured && !IsDevBuild)
             {
                 SetEnabled(true);

@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace HwMon.App.Controls;
 
 /// <summary>
-/// Ícone de uma cor da identidade Corewise (icons/*.svg → IconData.g.cs).
+/// Ícone de uma cor da identidade Nodekeeper (icons/*.svg → IconData.g.cs).
 /// Desenha na cor do texto ao redor (Foreground herdado), como o currentColor do SVG. Tamanho padrão 16.
 /// </summary>
 public sealed class Icon : FrameworkElement

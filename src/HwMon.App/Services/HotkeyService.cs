@@ -18,7 +18,7 @@ public sealed class HotkeyService : IDisposable
     public HotkeyService()
     {
         // Janela só de mensagens (HWND_MESSAGE) para receber o WM_HOTKEY.
-        _window = new HwndSource(new HwndSourceParameters("Corewise-hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0 });
+        _window = new HwndSource(new HwndSourceParameters("Nodekeeper-hotkeys") { ParentWindow = new IntPtr(-3), Width = 0, Height = 0 });
         _window.AddHook((IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled) =>
         {
             if (msg == 0x0312 && _actions.TryGetValue(wParam.ToInt32(), out var action))

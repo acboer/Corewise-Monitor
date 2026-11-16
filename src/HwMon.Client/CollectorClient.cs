@@ -18,7 +18,7 @@ public sealed class CollectorException(string message, HttpStatusCode? status = 
 
 /// <summary>Certificado diferente do fixado no pareamento: outra máquina ou coletor reinstalado. Não tenta de novo.</summary>
 public sealed class CertificateMismatchException(string expected, string actual)
-    : Exception(L.T("O certificado do serviço mudou ({0}, esperado {1}). Pareie de novo se o Corewise foi reinstalado nessa máquina.", Fingerprint.Short(actual), Fingerprint.Short(expected)))
+    : Exception(L.T("O certificado do serviço mudou ({0}, esperado {1}). Pareie de novo se o Nodekeeper foi reinstalado nessa máquina.", Fingerprint.Short(actual), Fingerprint.Short(expected)))
 {
     public string Actual { get; } = actual;
 }
@@ -272,7 +272,7 @@ public sealed class CollectorClient : IDisposable
     {
         using var timeout = Timeout(cancel, TimeSpan.FromMinutes(3));
         using var response = await Send(() => _http.PostAsJsonAsync("v1/history/clear", new HistoryClearRequest { Sensors = sensors, Games = games }, timeout.Token));
-        if (response.StatusCode == HttpStatusCode.NotFound) throw new CollectorException(L.T("Atualize o Corewise nesta máquina para limpar o histórico."), response.StatusCode);
+        if (response.StatusCode == HttpStatusCode.NotFound) throw new CollectorException(L.T("Atualize o Nodekeeper nesta máquina para limpar o histórico."), response.StatusCode);
         if (!response.IsSuccessStatusCode) throw new CollectorException(L.T("O serviço não conseguiu limpar o histórico ({0}).", (int)response.StatusCode), response.StatusCode);
     }
 

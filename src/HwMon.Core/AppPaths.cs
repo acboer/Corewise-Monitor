@@ -1,23 +1,25 @@
 namespace HwMon.Core;
 
 /// <summary>
-/// Pastas de dados do Corewise. Até a 0.11 elas se chamavam "HwMon"; na primeira execução da 0.12 a pasta antiga é
-/// movida (ou copiada, se algo estiver aberto nela) para a nova, levando máquinas pareadas, histórico e configurações.
+/// Pastas de dados do Nodekeeper. Até a 0.11 elas se chamavam "HwMon" e da 0.12 à 0.13 "Corewise"; na primeira execução
+/// a pasta antiga é movida (ou copiada, se algo estiver aberto nela) para a nova, levando máquinas pareadas, histórico
+/// e configurações.
 /// </summary>
 public static class AppPaths
 {
-    public const string Product = "Corewise";
-    private const string Legacy = "HwMon";
+    public const string Product = "Nodekeeper";
+    /// <summary>Nomes anteriores, do mais recente ao mais antigo.</summary>
+    private static readonly string[] Legacy = ["Corewise", "HwMon"];
 
-    /// <summary>%AppData%\Corewise: máquinas pareadas, configurações do painel, histórico de rede, erro.log.</summary>
+    /// <summary>%AppData%\Nodekeeper: máquinas pareadas, configurações do painel, histórico de rede, erro.log.</summary>
     public static string UserData => _user ??= Prepare(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
 
-    /// <summary>%ProgramData%\Corewise: dados do serviço (certificado, clientes, histórico, jogos, benchmarks).</summary>
+    /// <summary>%ProgramData%\Nodekeeper: dados do serviço (certificado, clientes, histórico, jogos, benchmarks).</summary>
     public static string MachineData => _machine ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), Product);
 
     private static string? _user, _machine;
 
-    /// <summary>Migra %ProgramData%\HwMon → %ProgramData%\Corewise (precisa de administrador; o serviço antigo parado).</summary>
+    /// <summary>Migra %ProgramData%\Corewise (ou \HwMon) → %ProgramData%\Nodekeeper (precisa de administrador; o serviço antigo parado).</summary>
     public static void MigrateMachineData() => Migrate(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData));
 
     private static string Prepare(string root)
@@ -30,8 +32,13 @@ public static class AppPaths
 
     private static void Migrate(string root)
     {
+        foreach (var legacy in Legacy) Migrate(root, legacy);
+    }
+
+    private static void Migrate(string root, string legacy)
+    {
         var dir = Path.Combine(root, Product);
-        var old = Path.Combine(root, Legacy);
+        var old = Path.Combine(root, legacy);
         if (!Directory.Exists(old)) return;
         if (Directory.Exists(dir))
         {

@@ -32,7 +32,7 @@ public sealed class MachineConnection(PairedMachine machine, MachineStore? store
 
     /// <summary>
     /// Diagnóstico de "acesso revogado": qual máquina, por qual endereço e o começo do hash do token enviado (o serviço
-    /// registra o mesmo hash no log dele). Em %AppData%\Corewise\diagnostico.log, até ~200 KB.
+    /// registra o mesmo hash no log dele). Em %AppData%\Nodekeeper\diagnostico.log, até ~200 KB.
     /// </summary>
     private void LogRejected()
     {

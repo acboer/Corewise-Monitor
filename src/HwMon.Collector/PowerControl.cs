@@ -32,7 +32,7 @@ public sealed class PowerControl(ILogger<PowerControl> log)
                 var flag = request.Action == "shutdown" ? "/s" : "/r";
                 var verb = request.Action == "shutdown" ? "Desligamento" : "Reinício";
                 // /d p:0:0 = "outro (planejado)"; /t maior que 0 já implica fechar os programas no fim da espera.
-                var code = Shutdown($"{flag} /t {delay} /d p:0:0 /c \"Corewise: {verb} pedido por {who}.\"");
+                var code = Shutdown($"{flag} /t {delay} /d p:0:0 /c \"Nodekeeper: {verb} pedido por {who}.\"");
                 if (code != 0) throw new InvalidOperationException(code == 1190
                     ? "Já há um desligamento ou reinício agendado neste PC."
                     : $"O Windows recusou o pedido (shutdown.exe saiu com {code}).");

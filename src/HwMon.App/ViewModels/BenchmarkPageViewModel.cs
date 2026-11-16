@@ -48,7 +48,7 @@ public sealed class BenchmarkPageViewModel : ObservableObject
     /// <summary>Processador, memória, placa de vídeo e estabilidade.</summary>
     public List<LoadBenchViewModel> LoadBenches { get; }
 
-    private static string Outdated => L.T("O serviço desta máquina ainda não tem benchmarks. Atualize o Corewise nela.");
+    private static string Outdated => L.T("O serviço desta máquina ainda não tem benchmarks. Atualize o Nodekeeper nela.");
 
     /// <summary>Pergunta antes de remover um resultado da lista (não dá para desfazer).</summary>
     public static bool ConfirmDelete(string when)
@@ -156,7 +156,7 @@ public sealed class BenchmarkPageViewModel : ObservableObject
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            DiskError = L.T("Atualize o Corewise nesta máquina para remover resultados.");
+            DiskError = L.T("Atualize o Nodekeeper nesta máquina para remover resultados.");
         }
         catch (Exception ex)
         {

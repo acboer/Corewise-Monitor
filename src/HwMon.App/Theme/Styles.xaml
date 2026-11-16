@@ -2,11 +2,12 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:infra="clr-namespace:HwMon.App.Infrastructure"
                     xmlns:controls="clr-namespace:HwMon.App.Controls">
-    <!-- Corewise · tipografia e componentes (design/tipografia.json). Cores em Dark.xaml / Light.xaml. -->
+    <!-- Nodekeeper · tipografia e componentes (design/nodekeeper/tipografia.json). Cores em Dark.xaml / Light.xaml.
+         Fonte: Manrope embutida (Assets/Fonts, de design/nodekeeper/fonts; SIL OFL 1.1); sem o arquivo, cai na Segoe UI. -->
 
-    <!-- Inter quando instalada/embutida; senão Segoe UI Variable. -->
-    <FontFamily x:Key="Font.Text">Inter, Segoe UI Variable Text, Segoe UI</FontFamily>
-    <FontFamily x:Key="Font.Display">Inter, Segoe UI Variable Display, Segoe UI</FontFamily>
+    <!-- Manrope embutida; sem ela, Segoe UI Variable. -->
+    <FontFamily x:Key="Font.Text">pack://application:,,,/Assets/Fonts/#Manrope, Segoe UI Variable Text, Segoe UI</FontFamily>
+    <FontFamily x:Key="Font.Display">pack://application:,,,/Assets/Fonts/#Manrope, Segoe UI Variable Display, Segoe UI</FontFamily>
     <FontFamily x:Key="Font.Mono">Cascadia Mono, Consolas</FontFamily>
 
     <infra:BoolToVisibilityConverter x:Key="BoolToVisibility"/>
@@ -35,7 +36,7 @@
     <Style x:Key="Text.PageTitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}"/>
         <Setter Property="FontSize" Value="26"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
     <Style x:Key="Text.PageSubtitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
@@ -46,17 +47,17 @@
     <Style x:Key="Text.DialogTitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}"/>
         <Setter Property="FontSize" Value="18"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
     <Style x:Key="Text.MachineCardTitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontSize" Value="16"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
     <Style x:Key="Text.CardTitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontSize" Value="13"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
     <Style x:Key="Text.CardSubtitle" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
@@ -67,7 +68,7 @@
     <Style x:Key="Text.Value" TargetType="TextBlock" BasedOn="{StaticResource Text.Base}">
         <Setter Property="FontFamily" Value="{StaticResource Font.Display}"/>
         <Setter Property="FontSize" Value="28"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="TextTrimming" Value="None"/>
     </Style>
 
@@ -139,7 +140,7 @@
         <Setter Property="Background" Value="{DynamicResource Card.Background}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Card.Border}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="14"/>
     </Style>
 

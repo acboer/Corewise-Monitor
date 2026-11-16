@@ -26,7 +26,7 @@ public sealed class TrayIcon : IDisposable
     {
         _app = app;
         _vm = vm;
-        _icon = new Forms.NotifyIcon { Icon = LoadIcon(), Text = "Corewise", Visible = true };
+        _icon = new Forms.NotifyIcon { Icon = LoadIcon(), Text = "Nodekeeper", Visible = true };
         _icon.MouseClick += (_, e) =>
         {
             if (e.Button == Forms.MouseButtons.Left) _app.ShowMain();
@@ -49,7 +49,7 @@ public sealed class TrayIcon : IDisposable
     private void UpdateTooltip()
     {
         // A dica da bandeja aceita no máximo 127 caracteres.
-        var lines = new List<string> { "Corewise" };
+        var lines = new List<string> { "Nodekeeper" };
         foreach (var m in _vm.Machines)
         {
             var cpu = m.Descriptor?.Components.FirstOrDefault(c => c.Kind == ComponentKind.Cpu)?.Id;

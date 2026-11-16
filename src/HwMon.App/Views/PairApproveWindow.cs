@@ -8,7 +8,7 @@ public sealed class PairApproveWindow : Window
 {
     private PairApproveWindow(string who)
     {
-        Title = L.T("Corewise · pedido de acesso");
+        Title = L.T("Nodekeeper · pedido de acesso");
         Width = 440;
         SizeToContent = SizeToContent.Height;
         ResizeMode = ResizeMode.NoResize;

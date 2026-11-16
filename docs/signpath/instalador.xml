@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- SignPath artifact configuration "instalador": CorewiseSetup-<version>.exe (Inno Setup; its embedded programs are already signed). -->
+<!-- SignPath artifact configuration "instalador": NodekeeperSetup-<version>.exe (Inno Setup; its embedded programs are already signed). -->
 <artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
   <parameters>
     <parameter name="version" default-value="0.0.0" />
   </parameters>
   <zip-file>
-    <pe-file path="CorewiseSetup-${version}.exe" product-name="Corewise" product-version="${version}">
+    <pe-file path="NodekeeperSetup-${version}.exe" product-name="Nodekeeper" product-version="${version}">
       <authenticode-sign />
     </pe-file>
   </zip-file>

@@ -38,7 +38,7 @@ public sealed class GameModeService : IDisposable
     {
         "chrome", "msedge", "firefox", "opera", "brave", "vivaldi", "vlc", "mpc-hc64", "mpc-be64", "mpv", "PotPlayerMini64",
         "Netflix", "Video.UI", "Microsoft.Media.Player", "explorer", "ApplicationFrameHost", "devenv", "Code", "POWERPNT",
-        "Teams", "ms-teams", "Zoom", "obs64", "HwMon", "Corewise", "Photos", "PhotosApp", "steamwebhelper",
+        "Teams", "ms-teams", "Zoom", "obs64", "HwMon", "Corewise", "Nodekeeper", "Photos", "PhotosApp", "steamwebhelper",
     };
 
     public GameModeService(App app, MainViewModel vm, SettingsStore settings)
@@ -159,7 +159,7 @@ public sealed class GameModeService : IDisposable
         }
         catch (CollectorException ex) when (ex.Status == HttpStatusCode.NotFound)
         {
-            return new FramesResponse { Error = L.T("Atualize o Corewise neste PC para ver o FPS.") };
+            return new FramesResponse { Error = L.T("Atualize o Nodekeeper neste PC para ver o FPS.") };
         }
         catch (Exception)
         {
