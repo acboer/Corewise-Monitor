@@ -32,8 +32,9 @@ Free and open source (MIT). Windows 10/11, 64-bit. English and Portuguese.
 
 | | |
 |---|---|
-| ![Machine dashboard](docs/screenshots/dashboard.jpg) | ![Desktop widget and its metric picker](docs/screenshots/widget.jpg) |
-| ![Game history with FPS and 1 % low](docs/screenshots/game-history.jpg) | ![Disk benchmark](docs/screenshots/benchmarks.jpg) |
+| ![Machine dashboard with 24-hour charts](docs/screenshots/dashboard.jpg) | ![One desktop widget per PC](docs/screenshots/widgets.jpg) |
+| ![Game history with FPS, 1 % low and power](docs/screenshots/game-history.jpg) | ![Daily usage: time on, energy, temperatures, network and disk](docs/screenshots/usage-history.jpg) |
+| ![Disk and processor benchmarks](docs/screenshots/benchmarks.jpg) | ![System summary: OS, motherboard, BIOS, CPU and memory](docs/screenshots/system.jpg) |
 
 ## Download and install
 
@@ -44,6 +45,10 @@ Free and open source (MIT). Windows 10/11, 64-bit. English and Portuguese.
    NAS, server, render node) or **Dashboard only**.
 3. To add another PC: **Add machine**, type its name, **Find**, **Request access**, then click **Allow** on that PC.
    A PC with only the service shows a pairing code instead (Start › Nodekeeper › Pairing code).
+
+   | | |
+   |---|---|
+   | ![Add machine: find the PC and check its certificate](docs/screenshots/add-machine.jpg) | ![Access request shown on the other PC](docs/screenshots/access-request.jpg) |
 
 Silent install for many machines: `NodekeeperSetup-<version>.exe /VERYSILENT /SUPPRESSMSGBOXES /TYPE=servico`.
 Uninstall from Windows Settings › Apps; history stays in `C:\ProgramData\Nodekeeper` until you delete it.
