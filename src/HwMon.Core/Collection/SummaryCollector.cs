@@ -23,7 +23,7 @@ public static class SummaryCollector
     public static SystemSummary Collect()
     {
         var problems = new List<string>();
-        var summary = new SystemSummary { HostName = Environment.MachineName, CollectedAt = DateTimeOffset.Now, Problems = problems };
+        var summary = new SystemSummary { HostName = Environment.MachineName, CollectedAt = DateTimeOffset.Now, Language = L.Language, Problems = problems };
         void Add(Func<List<string>, SummarySection?> build, string name)
         {
             try

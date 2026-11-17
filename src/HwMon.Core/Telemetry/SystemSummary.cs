@@ -9,6 +9,8 @@ public sealed class SystemSummary
 {
     public string HostName { get; set; } = "";
     public DateTimeOffset CollectedAt { get; set; }
+    /// <summary>Idioma do serviço ("pt"/"en"): números e datas dos valores estão no formato dele (0.14.1+).</summary>
+    public string? Language { get; set; }
     public List<SummarySection> Sections { get; set; } = new();
     /// <summary>Fontes que falharam (ex.: TPM sem permissão). Só para diagnóstico.</summary>
     public List<string> Problems { get; set; } = new();

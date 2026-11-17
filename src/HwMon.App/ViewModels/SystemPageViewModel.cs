@@ -55,11 +55,11 @@ public sealed class SystemPageViewModel : ObservableObject
         foreach (var s in summary.Sections)
         {
             s.Title = L.T(s.Title);
-            if (s.Headline is not null) s.Headline = L.T(s.Headline);
+            if (s.Headline is not null) s.Headline = L.Reformat(s.Headline, summary.Language);
             foreach (var g in s.Groups)
             {
                 if (g.Title is not null) g.Title = L.T(g.Title);
-                foreach (var i in g.Items) (i.Label, i.Value) = (L.T(i.Label), L.T(i.Value));
+                foreach (var i in g.Items) (i.Label, i.Value) = (L.T(i.Label), L.Reformat(i.Value, summary.Language));
             }
         }
         return summary;

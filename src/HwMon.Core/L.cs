@@ -79,7 +79,7 @@ public static class L
             foreach (var (regex, english) in Templates.Value)
                 if (regex.Match(text) is { Success: true } m)
                 {
-                    result = PlaceholderRegex.Replace(english, p => int.TryParse(p.Groups[1].Value, out var i) && i + 1 < m.Groups.Count ? T(m.Groups[i + 1].Value) : p.Value);
+                    result = PlaceholderRegex.Replace(english, p => int.TryParse(p.Groups[1].Value, out var i) && i + 1 < m.Groups.Count ? Value(m.Groups[i + 1].Value) : p.Value);
                     break;
                 }
         // "Não especificado · USB · 4001 GB": traduz cada parte.
@@ -89,6 +89,45 @@ public static class L
         Cache[text] = result;
         return result;
     }
+
+    /// <summary>
+    /// Valor de um modelo em português: veio de um serviço que fala português, então os números estão no formato
+    /// de lá ("5,01 GHz"). Passa para o formato inglês e traduz cada parte de uma lista "a · b · c" por si
+    /// ("até 86 °C · clock médio 5,01 GHz" não pode virar "up to" + o resto sem traduzir).
+    /// </summary>
+    private static string Value(string text)
+    {
+        text = Numbers(text, "pt", "en");
+        return text.Contains(" · ", StringComparison.Ordinal) ? string.Join(" · ", text.Split(" · ").Select(T)) : T(text);
+    }
+
+    /// <summary>
+    /// Texto pronto de um serviço em outro idioma (resumo do sistema): números e datas no formato do idioma do
+    /// painel. "4,30 GHz" ↔ "4.30 GHz", "1.024 MB" ↔ "1,024 MB", "20/08/2026" ↔ "08/20/2026".
+    /// </summary>
+    public static string Reformat(string text, string? from)
+    {
+        if (string.IsNullOrEmpty(text) || from is not ("pt" or "en") || from == Language) return T(text);
+        // Um modelo traduzido já passou os números para o formato do painel (ver Value): ali só faltam as datas.
+        var translated = T(text);
+        if (!ReferenceEquals(translated, text) && translated != text) return Dates(translated);
+        return Dates(Numbers(text, from, Language));
+    }
+
+    private static string Dates(string text) => DateRegex.Replace(text, d => $"{d.Groups[2].Value}/{d.Groups[1].Value}/{d.Groups[3].Value}");
+
+    private static string Numbers(string text, string from, string to)
+    {
+        if (from == to || !text.Any(char.IsDigit)) return text;
+        var regex = from == "pt" ? PtNumber : EnNumber;
+        return regex.Replace(text, n => string.Concat(n.Value.Select(c => c == '.' ? ',' : c == ',' ? '.' : c)));
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex DateRegex = new(@"(?<!\d)(\d{2})/(\d{2})/(\d{4})(?!\d)");
+    // Português: "1.024" (milhar), "4,30", "1.024,5". Versões ("26300.9974", "SSE4.2", "6.33.0.6") não casam.
+    private static readonly System.Text.RegularExpressions.Regex PtNumber = new(@"(?<![\w.,])(?:\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+,\d+)(?![\w.,]*\d)");
+    // Inglês: milhar "1,024"; decimal só antes de uma unidade ("4.30 GHz"), para não mexer em versões.
+    private static readonly System.Text.RegularExpressions.Regex EnNumber = new(@"(?<![\w.,])(?:\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+\.\d+(?=\s?(?:[KMGT]i?B|[kKMG]?Hz|V|W|°C|%|[GM]bit/s|MB/s|ms|cm|mm|pts|""|×)))(?![\w.,]*\d)");
 
     private static readonly System.Text.RegularExpressions.Regex PlaceholderRegex = new(@"\{(\d+)(?::[^}]*)?\}");
     private static readonly System.Collections.Concurrent.ConcurrentDictionary<string, string> Cache = new();

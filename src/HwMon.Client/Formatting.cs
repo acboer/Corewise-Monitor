@@ -38,6 +38,7 @@ public static class Format
     {
         "usage" => "Uso",
         "clock" => "Clock",
+        "clock_max" => "Núcleo mais rápido",
         "temp" => "Temperatura",
         "temp_hotspot" => "Hot spot",
         "power" => "Consumo",

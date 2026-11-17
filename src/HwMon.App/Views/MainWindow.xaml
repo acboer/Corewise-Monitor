@@ -303,7 +303,7 @@
                     <StackPanel>
                         <TextBlock Text="Sensores" Style="{StaticResource Text.PageTitle}"/>
                         <TextBlock Style="{StaticResource Text.PageSubtitle}" Margin="0,4,0,0">
-                            <Run Text="Todos os sensores de todas as máquinas, ao vivo."/>
+                            <Run Text="{controls:T 'Todos os sensores de todas as máquinas, ao vivo.'}"/>
                             <Run Text="{Binding SinceText, Mode=OneWay}"/><Run Text="."/>
                         </TextBlock>
                     </StackPanel>
@@ -467,7 +467,7 @@
                                             <StackPanel Orientation="Horizontal" Margin="6,4" TextElement.Foreground="{DynamicResource Accent.SoftText}">
                                                 <controls:Icon Kind="kind-gamepad" Margin="0,0,10,0" VerticalAlignment="Center"/>
                                                 <TextBlock FontSize="13" VerticalAlignment="Center" Foreground="{DynamicResource Accent.SoftText}">
-                                                    <Run Text="Jogando agora:" FontWeight="SemiBold"/>
+                                                    <Run Text="{controls:T 'Jogando agora:'}" FontWeight="SemiBold"/>
                                                     <Run Text="{Binding Game, Mode=OneWay}" FontWeight="SemiBold"/>
                                                     <Run Text="{Binding NowPlaying, Mode=OneWay}"/>
                                                 </TextBlock>
@@ -826,7 +826,7 @@
                             <RadioButton GroupName="Mode" Content="Nada (só o ícone perto do relógio)" IsChecked="{Binding ModeTray}" Margin="0,6,0,0" FontSize="13"/>
                             <Border Style="{StaticResource Inset}" Margin="0,14,0,0" Visibility="{Binding IsDevBuild, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock TextWrapping="Wrap" Style="{StaticResource Text.Label}">
-                                    <Run Text="Cópia de desenvolvimento: o início automático apontaria para"/>
+                                    <Run Text="{controls:T 'Cópia de desenvolvimento: o início automático apontaria para'}"/>
                                     <Run Text="{Binding ExePath, Mode=OneWay}" FontFamily="{StaticResource Font.Mono}"/><Run Text=". Use a cópia publicada."/>
                                 </TextBlock>
                             </Border>

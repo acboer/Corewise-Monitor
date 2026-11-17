@@ -334,9 +334,10 @@ public sealed class HistoryStore : IDisposable
 
         var cpu = components.FirstOrDefault(x => x.Kind == ComponentKind.Cpu);
         var gpus = components.Where(x => x.Kind == ComponentKind.Gpu).ToList();
-        // Placa de vídeo principal = a que mais consumiu no período (a dedicada, não a integrada).
-        var gpuEnergy = gpus.Select(g => (g, Energy: Find(g.Id, "power") is { } id ? PerDay(id).Sum(x => x.Sum) : 0, Usage: Find(g.Id, "usage") is { } u ? PerDay(u).Sum(x => x.Sum) : 0)).ToList();
-        var gpu = gpuEnergy.OrderByDescending(x => x.Energy).ThenByDescending(x => x.Usage).Select(x => x.g).FirstOrDefault();
+        // Placa de vídeo principal: a dedicada (a integrada das Ryzen informa o consumo do SoC todo, ~20 W parada,
+        // e passava na frente de uma RTX ociosa); entre as do mesmo tipo, a que mais consumiu no período.
+        var gpuEnergy = gpus.Select(g => (g, Integrated: g.Detail == "integrada", Energy: Find(g.Id, "power") is { } id ? PerDay(id).Sum(x => x.Sum) : 0, Usage: Find(g.Id, "usage") is { } u ? PerDay(u).Sum(x => x.Sum) : 0)).ToList();
+        var gpu = gpuEnergy.OrderBy(x => x.Integrated).ThenByDescending(x => x.Energy).ThenByDescending(x => x.Usage).Select(x => x.g).FirstOrDefault();
 
         var response = new UsageResponse { From = from, To = to, Since = Since, Resolution = tier.Name, Cpu = cpu?.Name, Gpu = gpu?.Name };
 

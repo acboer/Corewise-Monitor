@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Media;
 using Microsoft.Win32;
 using HwMon.App.Infrastructure;
 using HwMon.App.Services;
@@ -334,5 +335,35 @@ public partial class App : Application
         var current = dictionaries.FirstOrDefault(d => d.Source?.OriginalString.Contains("Theme/Dark.xaml") == true || d.Source?.OriginalString.Contains("Theme/Light.xaml") == true);
         if (current is not null) dictionaries[dictionaries.IndexOf(current)] = palette;
         else dictionaries.Insert(0, palette);
+        ApplyAccent(light);
+    }
+
+    /// <summary>
+    /// Os controles Fluent (caixas de seleção, opções, controle deslizante, foco das caixas de texto) pintam com a
+    /// cor de destaque do Windows; aqui viram o violeta da identidade. Fica no nível de cima de Application.Resources,
+    /// que vence os dicionários mesclados (inclusive o do tema Fluent).
+    /// </summary>
+    private void ApplyAccent(bool light)
+    {
+        static Color C(uint argb) => Color.FromArgb((byte)(argb >> 24), (byte)(argb >> 16), (byte)(argb >> 8), (byte)argb);
+        var ramp = new Dictionary<string, Color>
+        {
+            ["SystemAccentColor"] = C(0xFF7B66E8),
+            ["SystemAccentColorLight1"] = C(0xFF8F7BF5),
+            ["SystemAccentColorLight2"] = C(0xFFA08CFF),
+            ["SystemAccentColorLight3"] = C(0xFFC2B5FF),
+            ["SystemAccentColorDark1"] = C(0xFF5B47D6),
+            ["SystemAccentColorDark2"] = C(0xFF4936B3),
+            ["SystemAccentColorDark3"] = C(0xFF36278A),
+        };
+        foreach (var (key, color) in ramp) Resources[key] = color;
+        // Mesmos tons do Accent da paleta: #A08CFF no escuro, #5B47D6 no claro.
+        var fill = light ? ramp["SystemAccentColorDark1"] : ramp["SystemAccentColorLight2"];
+        SolidColorBrush Brush(Color c, byte alpha = 0xFF) { var b = new SolidColorBrush(Color.FromArgb(alpha, c.R, c.G, c.B)); b.Freeze(); return b; }
+        Resources["AccentFillColorDefaultBrush"] = Brush(fill);
+        Resources["AccentFillColorPrimaryBrush"] = Brush(fill);
+        Resources["AccentFillColorSecondaryBrush"] = Brush(fill, 0xE6);
+        Resources["AccentFillColorTertiaryBrush"] = Brush(fill, 0xCC);
+        Resources["AccentFillColorSelectedTextBackgroundBrush"] = Brush(ramp["SystemAccentColor"]);
     }
 }

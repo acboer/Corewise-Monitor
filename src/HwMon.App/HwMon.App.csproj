@@ -11,7 +11,7 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <AssemblyName>Nodekeeper</AssemblyName>
     <RootNamespace>HwMon.App</RootNamespace>
-    <Version>0.14.0</Version>
+    <Version>0.14.1</Version>
     <Product>Nodekeeper</Product>
     <ApplicationIcon>..\..\icons\app.ico</ApplicationIcon>
     <!-- Tema Fluent do WPF (Application.ThemeMode) ainda é marcado como experimental. -->
