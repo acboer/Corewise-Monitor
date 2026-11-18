@@ -124,11 +124,17 @@ public sealed class BarChart : FrameworkElement
         }
     }
 
-    private static double Nice(double v)
+    /// <summary>
+    /// Topo do eixo: o eixo tem 4 divisões, então o topo precisa dividir bem por 4 (com 2,5 e 5 saíam "12 h, 25 h,
+    /// 38 h, 50 h"). Horas por dia param em 24 h (divisões de 6 h).
+    /// </summary>
+    private double Nice(double v)
     {
         if (v <= 0) return 1;
+        if (Unit == "h" && v <= 24 * 1.1)
+            return new[] { 0.4, 1, 2, 4, 8, 12, 16, 24 }.First(c => c >= Math.Min(v, 24));
         var exp = Math.Pow(10, Math.Floor(Math.Log10(v)));
         var f = v / exp;
-        return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * exp;
+        return new[] { 1, 1.2, 1.6, 2, 4, 6, 8, 10 }.First(c => c >= f - 1e-9) * exp;
     }
 }

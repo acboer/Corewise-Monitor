@@ -7,7 +7,7 @@ which keep their own licenses. Unmodified upstream libraries are bundled inside 
 |---|---|---|
 | [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) | CPU, GPU, motherboard, fan and disk sensors | MPL-2.0 |
 | [HidSharp](https://www.zer7.com/software/hidsharp) (via LibreHardwareMonitorLib) | USB HID devices | Apache-2.0 |
-| [.NET](https://github.com/dotnet/runtime), [ASP.NET Core](https://github.com/dotnet/aspnetcore), [WPF](https://github.com/dotnet/wpf) | Runtime, HTTPS service, user interface | MIT |
+| [.NET](https://github.com/dotnet/runtime), [ASP.NET Core](https://github.com/dotnet/aspnetcore), [WPF](https://github.com/dotnet/wpf) | Runtime, HTTPS service, user interface (the accent brushes in `src/HwMon.App/Theme/FluentAccent.*.xaml` are adapted from the WPF Fluent theme) | MIT |
 | [Microsoft.Data.Sqlite](https://github.com/dotnet/efcore) | History database | MIT |
 | [SQLitePCLRaw](https://github.com/ericsink/SQLitePCL.raw) | SQLite bindings | Apache-2.0 |
 | [SQLite](https://sqlite.org) | History database engine | Public domain |

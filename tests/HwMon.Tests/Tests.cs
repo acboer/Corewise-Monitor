@@ -323,6 +323,8 @@ public class ServiceTextTranslationTests
     [InlineData("Estressando · faltam 9:37 · 0 erros", "Stressing · 9:37 left · 0 errors")]
     [InlineData("Durante o teste, a CPU: até 52 °C · clock médio 5,06 GHz · até 38 W.", "During the test, the CPU: up to 52 °C · average clock 5.06 GHz · up to 38 W.")]
     [InlineData("Durante o teste, a CPU: clock médio 5,01 GHz · até 200 W.", "During the test, the CPU: average clock 5.01 GHz · up to 200 W.")]
+    [InlineData("Durante o teste, a CPU: até 86 °C, clock médio 5,01 GHz, até 200 W.", "During the test, the CPU: up to 86 °C, average clock 5.01 GHz, up to 200 W.")]
+    [InlineData("10DE:2F04 · subsistema 1458:417E", "10DE:2F04 · subsystem 1458:417E")]
     [InlineData("Módulo corsair--cmh128gx5m2b6400c42-1", "Module corsair--cmh128gx5m2b6400c42-1")]
     [InlineData("Ventoinha 1 · Rotação", "Fan 1 · Speed")]
     [InlineData("CPU chegou a 57 °C.", "CPU reached 57 °C.")]

@@ -1,0 +1,90 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Nodekeeper · cor de destaque dos controles Fluent (tema Light). Os controles do WPF (caixa de seleção, opção,
+         controle deslizante, foco das caixas de texto…) pintam com a cor de destaque do Windows; estes são os mesmos
+         pincéis do tema Fluent do WPF (github.com/dotnet/wpf, licença MIT) com o violeta da identidade no lugar.
+         Gerado de Resources/Theme/Light.xaml; App.ApplyAccent copia para o topo de Application.Resources. -->
+    <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#FF4936B3" />
+    <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#FF36278A" />
+    <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="AccentFillColorSelectedTextBackgroundBrush" Color="#FF7B66E8" />
+    <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Opacity="0.9" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Opacity="0.8" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="SystemFillColorAttentionBrush" Color="#FF7B66E8" />
+    <LinearGradientBrush x:Key="TextControlElevationBorderFocusedBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+          <ScaleTransform ScaleY="-1" CenterY="0.5" />
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+          <GradientStop Offset="1.0" Color="#FF5B47D6" />
+          <GradientStop Offset="1.0" Color="#0F000000" />
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="AccentButtonBackground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="AccentButtonBackgroundPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="AccentButtonBackgroundPressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="CalendarViewSelectedBackground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CalendarViewSelectedBorderBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CalendarViewTodayBackground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillIndeterminate" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillIndeterminatePointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillIndeterminatePressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeIndeterminate" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeIndeterminatePointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeIndeterminatePressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="ComboBoxBorderBrushFocused" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ComboBoxItemPillFillBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="DataGridRowSelectedBackgroundThemeBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="DatePickerBorderBrushFocused" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="HyperlinkForeground" Color="#FF4936B3" />
+    <SolidColorBrush x:Key="HyperlinkForegroundPointerOver" Color="#FF4936B3" />
+    <SolidColorBrush x:Key="HyperlinkButtonForeground" Color="#FF4936B3" />
+    <SolidColorBrush x:Key="HyperlinkButtonForegroundPointerOver" Color="#FF36278A" Opacity="0.9" />
+    <SolidColorBrush x:Key="HyperlinkButtonForegroundPressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="InfoBarInformationalSeverityIconBackground" Color="#FF7B66E8" />
+    <SolidColorBrush x:Key="ListBoxItemSelectedBackgroundThemeBrush" Color="#FF7B66E8" Opacity="0.4" />
+    <SolidColorBrush x:Key="ListBoxItemSelectedBackgroundPointerOverThemeBrush" Color="#FF7B66E8" Opacity="0.6" />
+    <SolidColorBrush x:Key="ListBoxItemSelectedBackgroundPressedThemeBrush" Color="#FF7B66E8" Opacity="0.7" />
+    <SolidColorBrush x:Key="ListViewItemPillFillBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="NavigationViewSelectionIndicatorForeground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ProgressBarForeground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ProgressRingForegroundThemeBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStroke" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStrokePointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedStrokePressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedFillPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedFillPressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedFill" Color="#FF5B47D6"/>
+    <SolidColorBrush x:Key="RatingControlSelectedForeground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="SliderThumbBackground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <LinearGradientBrush x:Key="TextControlBorderBrushFocused" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+          <ScaleTransform ScaleY="-1" CenterY="0.5" />
+        </LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.GradientStops>
+          <GradientStop Offset="1.0" Color="#FF5B47D6" />
+          <GradientStop Offset="1.0" Color="#0F000000" />
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TextControlSelectionHighlightColor" Color="#FF7B66E8" />
+    <SolidColorBrush x:Key="TextControlFocusedBorderBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ThumbRateForeground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ToggleButtonBackgroundChecked" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed" Color="#FF5B47D6" Opacity="0.8" />
+    <SolidColorBrush x:Key="ToggleSwitchStrokeOn" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ToggleSwitchStrokeOnPointerOver" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ToggleSwitchFillOn" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ToggleSwitchFillOnPointerOver" Color="#FF5B47D6" Opacity="0.9" />
+    <SolidColorBrush x:Key="TreeViewItemSelectionIndicatorForeground" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="DatePickerFocusedBorderBrush" Color="#FF5B47D6" />
+    <SolidColorBrush x:Key="ListBoxItemBackgroundSelectedPressedThemeBrush" Color="#FF7B66E8" Opacity="0.7" />
+</ResourceDictionary>

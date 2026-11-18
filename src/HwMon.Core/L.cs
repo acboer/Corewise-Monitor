@@ -98,7 +98,10 @@ public static class L
     private static string Value(string text)
     {
         text = Numbers(text, "pt", "en");
-        return text.Contains(" · ", StringComparison.Ordinal) ? string.Join(" · ", text.Split(" · ").Select(T)) : T(text);
+        if (text.Contains(" · ", StringComparison.Ordinal)) return string.Join(" · ", text.Split(" · ").Select(T));
+        var result = T(text);
+        // Notas gravadas por serviços até a 0.13 separavam as partes com vírgula ("até 86 °C, clock médio …").
+        return result == text && text.Contains(", ", StringComparison.Ordinal) ? string.Join(", ", text.Split(", ").Select(T)) : result;
     }
 
     /// <summary>

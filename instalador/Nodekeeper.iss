@@ -48,7 +48,7 @@ ShowLanguageDialog=auto
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"; InfoBeforeFile: "aviso-en.txt"
-Name: "ptbr"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; InfoBeforeFile: "aviso-pt.txt"
+Name: "ptbr"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"; InfoBeforeFile: "aviso-pt.txt"; LicenseFile: "licenca-pt.txt"
 
 [CustomMessages]
 ptbr.TypeFull=Completo: painel, widget e serviço (este PC aparece no painel)
