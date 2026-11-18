@@ -101,6 +101,11 @@ public sealed class MachineDescriptor
     /// quando ele estiver desligado. Coletor 0.13.3+.
     /// </summary>
     public List<string> WakeMacs { get; set; } = new();
+    /// <summary>
+    /// Falta o driver PawnIO (sem ele o LHM não lê temperatura e consumo da CPU, ventoinhas nem temperatura da RAM).
+    /// Nulo em serviços anteriores à 0.14.1.
+    /// </summary>
+    public bool? SensorDriverMissing { get; set; }
 }
 
 public sealed class ComponentDescriptor

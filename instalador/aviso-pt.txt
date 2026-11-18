@@ -2,9 +2,10 @@
 
 - Só o serviço / Completo: instala o serviço do Windows "Nodekeeper" (roda como Sistema Local e inicia com o Windows). Ler os sensores da placa-mãe, da CPU e dos discos e os eventos de quadros usados pelo FPS no jogo exige permissão de administrador.
 - Só o serviço / Completo: cria uma regra no Firewall do Windows liberando a porta TCP 47821 em redes privadas e de domínio (nunca em redes públicas), para o painel do Nodekeeper nos seus outros PCs se conectar. Só respondem os painéis que você parear (clicando em Permitir neste PC ou com um código de uso único).
+- Só o serviço / Completo, se faltar: instala o driver PawnIO (opção marcada na tela seguinte), baixado do projeto oficial (github.com/namazso/PawnIO.Setup). É por ele que se lê a temperatura e o consumo da CPU, as ventoinhas e a temperatura da RAM. Outros programas de sensores usam o mesmo driver; desinstalar o Nodekeeper não o remove.
 - Completo / Só o painel: o painel e o widget abrem com o Windows (dá para desligar em Configurações).
 
-O Nodekeeper não envia nada para a internet. Os dados ficam em C:\ProgramData\Nodekeeper e %AppData%\Nodekeeper.
+O Nodekeeper não envia nada para a internet (o instalador só acessa a internet para baixar o PawnIO, se essa opção estiver marcada). Os dados ficam em C:\ProgramData\Nodekeeper e %AppData%\Nodekeeper.
 
 Desinstalar (Configurações > Aplicativos > Nodekeeper) remove o serviço, a regra do firewall e o início automático.
 

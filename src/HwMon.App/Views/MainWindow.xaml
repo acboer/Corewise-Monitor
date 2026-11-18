@@ -1026,6 +1026,11 @@
                                 <Button Content="Cancelar" Style="{StaticResource FlatButton}" Padding="10,3" Command="{Binding CancelPowerCommand}"
                                         Visibility="{Binding IsPowerPending, Converter={StaticResource BoolToVisibility}}"/>
                             </StackPanel>
+                            <!-- Sem o driver PawnIO: CPU sem temperatura/consumo, sem ventoinhas (serviço 0.14.1+). -->
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0" Visibility="{Binding DriverHint, Converter={StaticResource NullToVisibility}}">
+                                <controls:Icon Kind="status-caution" Width="14" Height="14" VerticalAlignment="Top" Margin="0,1,0,0" Foreground="{DynamicResource Status.CautionText}"/>
+                                <TextBlock Text="{Binding DriverHint}" FontSize="12" Margin="6,0,0,0" TextWrapping="Wrap" MaxWidth="640" Foreground="{DynamicResource Status.CautionText}"/>
+                            </StackPanel>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top">
                             <ToggleButton Content="Personalizar" Tag="action-customize" Style="{StaticResource FlatToggle}" Margin="0,0,8,0"

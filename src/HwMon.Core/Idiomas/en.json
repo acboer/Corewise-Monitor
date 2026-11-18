@@ -507,6 +507,7 @@
   "Economia de energia": "Power saver",
   "Desempenho máximo": "Ultimate performance",
   "Personalizado": "Custom",
+  "Falta o driver PawnIO nesta máquina: sem ele não aparecem a temperatura e o consumo da CPU, as ventoinhas e a temperatura da RAM. Instale por pawnio.eu (ou reinstale o Nodekeeper nela) e reinicie o serviço Nodekeeper.": "The PawnIO driver is missing on this machine: without it there is no CPU temperature or power, no fans and no RAM temperature. Install it from pawnio.eu (or reinstall Nodekeeper on it) and restart the Nodekeeper service.",
   "Degradado": "Degraded",
   "Parado": "Stopped",
   "Falha prevista": "Failure predicted",

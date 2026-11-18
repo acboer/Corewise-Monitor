@@ -2,9 +2,10 @@
 
 - Service only / Full: installs the "Nodekeeper" Windows service (runs as Local System, starts with Windows). Reading motherboard, CPU and disk sensors and the frame events used by the FPS overlay requires administrator rights.
 - Service only / Full: adds a Windows Firewall rule allowing TCP port 47821 on private and domain networks (never public networks), so the Nodekeeper dashboard on your other PCs can connect. Only dashboards you pair (by clicking Allow on this PC or with a one-time code) are answered.
+- Service only / Full, if missing: installs the PawnIO driver (option checked on the next page), downloaded from the official project (github.com/namazso/PawnIO.Setup). It is what reads CPU temperature and power, fans and RAM temperature. Other sensor programs use the same driver; uninstalling Nodekeeper does not remove it.
 - Full / Dashboard only: the dashboard and widget start with Windows (you can turn this off in Settings).
 
-Nodekeeper does not send anything to the internet. Data stays in C:\ProgramData\Nodekeeper and %AppData%\Nodekeeper.
+Nodekeeper does not send anything to the internet (the installer only goes online to download PawnIO, if that option is checked). Data stays in C:\ProgramData\Nodekeeper and %AppData%\Nodekeeper.
 
 Uninstalling (Settings > Apps > Nodekeeper) removes the service, the firewall rule and the startup entry.
 

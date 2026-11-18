@@ -225,6 +225,12 @@ public sealed class MachineViewModel : ObservableObject
 
     /// <summary>Linha abaixo do nome: "Desliga às 14:32 (em 0:42)", ou o erro do pedido.</summary>
     public string? PowerText { get => _powerText; private set => Set(ref _powerText, value); }
+
+    /// <summary>Falta o driver PawnIO na máquina: sem ele não há temperatura nem consumo da CPU, ventoinhas nem temperatura da RAM.</summary>
+    public string? DriverHint => _descriptor?.SensorDriverMissing == true
+        ? L.T("Falta o driver PawnIO nesta máquina: sem ele não aparecem a temperatura e o consumo da CPU, as ventoinhas e a temperatura da RAM. Instale por pawnio.eu (ou reinstale o Nodekeeper nela) e reinicie o serviço Nodekeeper.")
+        : null;
+
     /// <summary>Há um desligamento/reinício/suspensão agendado (mostra Cancelar).</summary>
     public bool IsPowerPending => _powerAt is not null;
 
@@ -458,6 +464,7 @@ public sealed class MachineViewModel : ObservableObject
             Raise(nameof(Description));
             Raise(nameof(IsNas));
             Raise(nameof(MachineIcon));
+            Raise(nameof(DriverHint));
             Rebuild();
         }
 

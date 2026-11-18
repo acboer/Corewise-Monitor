@@ -266,6 +266,7 @@ public sealed class TelemetryEngine : IDisposable
                     .Where(a => a.Physical != false && a.Status == "Up" && a.Mac is { Length: 12 } && a.Type is "Ethernet" or "GigabitEthernet" or "FastEthernetT" or "FastEthernetFx" or "Wireless80211")
                     .OrderBy(a => a.Type == "Wireless80211" ? 1 : 0)
                     .Select(a => a.Mac!).Distinct().ToList(),
+                SensorDriverMissing = !_system.PawnIoInstalled,
             };
         }
     }

@@ -58,6 +58,9 @@ Uninstall from Windows Settings › Apps; history stays in `C:\ProgramData\Nodek
 - Installs the **Nodekeeper** Windows service, running as Local System. Reading motherboard, CPU and disk sensors
   (and frame events for the FPS overlay) requires administrator rights, so the service does it and the dashboard runs
   as a normal user.
+- Installs the [PawnIO](https://pawnio.eu) driver if it's missing (checked by default; downloaded from the official
+  project). LibreHardwareMonitor reads CPU temperature and power, fans and RAM temperature through it. Other sensor
+  tools use the same driver, so uninstalling Nodekeeper leaves it in place.
 - Adds a Windows Firewall rule for **TCP 47821, private and domain networks only (never public Wi-Fi)**, so dashboards on your other PCs can reach
   the service. Traffic is HTTPS with a per-machine certificate pinned at pairing time.
 - Starts the dashboard/widget with Windows (on by default; turn it off in Settings).

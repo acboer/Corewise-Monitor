@@ -6,6 +6,7 @@ which keep their own licenses. Unmodified upstream libraries are bundled inside 
 | Component | Used for | License |
 |---|---|---|
 | [LibreHardwareMonitorLib](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) | CPU, GPU, motherboard, fan and disk sensors | MPL-2.0 |
+| [PawnIO](https://pawnio.eu) | Kernel driver used by LibreHardwareMonitorLib for CPU, motherboard and RAM sensors. Not bundled: the installer downloads the official signed setup from [PawnIO.Setup](https://github.com/namazso/PawnIO.Setup) when it is missing | Its own license (see pawnio.eu) |
 | [HidSharp](https://www.zer7.com/software/hidsharp) (via LibreHardwareMonitorLib) | USB HID devices | Apache-2.0 |
 | [.NET](https://github.com/dotnet/runtime), [ASP.NET Core](https://github.com/dotnet/aspnetcore), [WPF](https://github.com/dotnet/wpf) | Runtime, HTTPS service, user interface (the accent brushes in `src/HwMon.App/Theme/FluentAccent.*.xaml` are adapted from the WPF Fluent theme) | MIT |
 | [Microsoft.Data.Sqlite](https://github.com/dotnet/efcore) | History database | MIT |
